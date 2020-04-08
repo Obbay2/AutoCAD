@@ -1,0 +1,69 @@
+﻿<Window x:Class="CADApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CADApp"
+        mc:Ignorable="d"
+        Title="Find and Replace" Height="450" Width="800">
+    <Window.Resources>
+        <CollectionViewSource x:Key="ItemCollectionViewSource" CollectionViewType="ListCollectionView"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="6*" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <DataGrid ItemsSource="{Binding Test}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="2">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="IsSelected"
+                    Value="{Binding IsSelected}" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Original Text" Binding="{Binding OriginalText}" Width="1*" IsReadOnly="True" />
+                <DataGridTemplateColumn Width="75">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Jump To" FontSize="12" Name="btnJumpTo" Click="btnJumpTo_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="New Text" Binding="{Binding NewText}" Width="1*" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Margin="10" Grid.Row="3">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Strip New Lines" Grid.Column="0" FontSize="12" Name="btnStrip" Click="btnStrip_Click"/>
+        </Grid>
+        <Grid Margin="10" Grid.Row="4">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Save File" Grid.Column="0" FontSize="14" Name="btnSaveFile" Click="btnSaveFile_Click"/>
+            <Button Content="Open File" Grid.Column="1" FontSize="14" Name="btnOpenFile" Click="btnOpenFile_Click"/>
+            <Button Content="Execute Changes" Grid.Column="2" FontSize="14" Name="btnExecuteChanges" Click="btnExecute_Click"/>
+        </Grid>
+    </Grid>
+</Window>

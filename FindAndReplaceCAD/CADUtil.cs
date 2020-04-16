@@ -52,13 +52,18 @@ namespace CADApp
 					ObjectId id = HandleToObjectId(db, StringToHandle(objInfo.Id));
 					DBObject obj = myT.GetObject(id, OpenMode.ForWrite);
 
-					MLeader mLeader = obj as MLeader;
-
-					if (mLeader != null)
+					if(obj is MLeader)
 					{
+						MLeader mLeader = obj as MLeader;
 						MText newMText = (MText)mLeader.MText.Clone();
-						newMText.Contents = ReplaceStandardNewLineWithCADNewLine(objInfo.NewText);
+						newMText.Contents = objInfo.NewText;
 						mLeader.MText = newMText;
+					}
+
+					if (obj is MText)
+					{
+						MText mText = obj as MText;
+						mText.Contents = objInfo.NewText;
 					}
 				}
 				myT.Commit();
@@ -67,12 +72,12 @@ namespace CADApp
 			Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Editor.UpdateScreen();
 		}
 
-		static public IList<ObjectInformation> ReadCADItems()
+		static public IList<DisplayableObjectInformation> ReadCADItems()
 		{
 			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
 			TransactionManager tm = db.TransactionManager;
 
-			List<ObjectInformation> textFound = new List<ObjectInformation>();
+			List<DisplayableObjectInformation> textFound = new List<DisplayableObjectInformation>();
 
 			using (Transaction myT = tm.StartTransaction())
 			{
@@ -86,13 +91,16 @@ namespace CADApp
 					// open each object to read
 					DBObject obj = myT.GetObject(id, OpenMode.ForRead);
 
-					//only deal with MLeader objects which reference MText
-					MLeader dbMText = obj as MLeader;
-					//if current object is Mtext then print its contents
-					if (dbMText != null)
+					if (obj is MLeader)
 					{
-						// Handles are persistent Ids between transactions and reload of drawing files
-						textFound.Add(new ObjectInformation(dbMText.Handle.ToString(), ReplaceCADNewLineWithStandardNewLine(dbMText.MText.Contents)));
+						MLeader mLeader = obj as MLeader;
+						textFound.Add(new DisplayableObjectInformation(typeof(MLeader), mLeader.Handle.ToString(), mLeader.MText.Contents));
+					}
+
+					if (obj is MText)
+					{
+						MText mText = obj as MText;
+						textFound.Add(new DisplayableObjectInformation(typeof(MText), mText.Handle.ToString(), mText.Contents));
 					}
 				}
 				myT.Commit();
@@ -144,19 +152,28 @@ namespace CADApp
 				ObjectId objId = HandleToObjectId(db, StringToHandle(id));
 				DBObject obj = myT.GetObject(objId, OpenMode.ForRead);
 
-				MLeader mLeader = obj as MLeader;
+
+				MText mtext = null;
+				if (obj is MLeader)
+				{
+					MLeader mLeader = obj as MLeader;
+					mtext = mLeader.MText;
+				}
+
+				if (obj is MText)
+				{
+					MText mText = obj as MText;
+					mtext = mText;
+				}
 
 				ed.SetImpliedSelection(new[] { objId });
-
-				view.CenterPoint = new Point2d(mLeader.MText.Location.X, mLeader.MText.Location.Y);
-				view.Height = mLeader.MText.ActualHeight * 3;
-				view.Width = mLeader.MText.ActualWidth * 3;
+				view.CenterPoint = new Point2d(mtext.Location.X, mtext.Location.Y);
+				view.Height = mtext.ActualHeight * 3;
+				view.Width = mtext.ActualWidth * 3;
 				ed.SetCurrentView(view);
 				ed.Regen(); // Update gizmos to be accurate after movement
 				myT.Commit();
 			}
-			
-
 		}
 	}
 }

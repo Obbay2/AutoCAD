@@ -1,11 +1,14 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using CsvHelper;
+using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace CADApp
 {
@@ -16,7 +19,8 @@ namespace CADApp
     {
         // TODO: Add background mask
         // TODO: Apply same width to all selected boxes
-        public ObservableCollection<ObjectInformation> Test { get; set; } = new ObservableCollection<ObjectInformation>(CADUtil.ReadCADItems());
+        private ObservableCollection<DisplayableObjectInformation> Test { get; set; } = new ObservableCollection<DisplayableObjectInformation>(CADUtil.ReadCADItems());
+        public string FilterText { get; set; } = "";
 
         public MainWindow()
         {     
@@ -30,7 +34,11 @@ namespace CADApp
             saveFileDialog.Filter = "CSV File (*.csv)|*.csv";
             if (saveFileDialog.ShowDialog() == true)
             {
-                File.WriteAllLines(saveFileDialog.FileName, Test.Select(item => item.ToString()));
+                using (var writer = new StreamWriter(saveFileDialog.FileName))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(Test);
+                }
             }
         }
 
@@ -40,19 +48,22 @@ namespace CADApp
             openFileDialog.Filter = "CSV File (*.csv)|*.csv";
             if (openFileDialog.ShowDialog() == true)
             {
-                Test.Clear(); // Clear active list of items
-                ReadFileToList(openFileDialog.FileName, Test);
+                using (var reader = new StreamReader(openFileDialog.FileName))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    //Test = new ObservableCollection<DisplayableObjectInformation>(csv.GetRecords<DisplayableObjectInformation>());
+                }
             }
         }
 
         public void btnExecute_Click(object sender, RoutedEventArgs e)
         {
-            CADUtil.WriteCADItems(Test);
+            CADUtil.WriteCADItems((IList<ObjectInformation>) Test);
         }
 
         public void btnStrip_Click(object sender, RoutedEventArgs e)
         {
-            foreach(ObjectInformation item in Test.Where(item => item.IsSelected))
+            foreach(DisplayableObjectInformation item in Test.Where(item => item.IsSelected))
             {
                 item.NewText = item.OriginalText.Replace("\n", " ");
             }
@@ -63,16 +74,17 @@ namespace CADApp
             Button button = sender as Button;
             ObjectInformation info = button.DataContext as ObjectInformation;
             CADUtil.MoveViewPort(info.Id);
-            
         }
 
-        private void ReadFileToList(string filePath, IList<ObjectInformation> textFound)
-        {
-            foreach (string line in File.ReadAllLines(filePath))
-            {
-                string[] fields = line.Trim().Split(',');
-                textFound.Add(new ObjectInformation(fields[0], fields[1].Substring(1, fields[1].Length - 2), fields[2].Substring(1, fields[1].Length - 2)));
-            }
-        }     
+        //private bool FindFilter(object item)
+        //{
+        //    DisplayableObjectInformation objInfo = item as DisplayableObjectInformation;
+
+        //    if (FilterText.Equals(""))
+        //    {
+        //        return true;
+        //    }
+        //    return objInfo.OriginalText.Contains("");
+        //}
     }
 }

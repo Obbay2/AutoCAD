@@ -1,52 +1,88 @@
-﻿using System.ComponentModel;
+﻿using CsvHelper.Configuration.Attributes;
+using System;
+using System.ComponentModel;
 
 namespace CADApp
 {
-	public class ObjectInformation : INotifyPropertyChanged
+	public abstract class ObjectInformation
 	{
-		private string _newText;
+		[Index(0)]
+		public string Type { get; set; }
+
+		[Index(1)]
+		public string Id { get; set; }
+
+		[Index(2)]
+		public string OriginalText { get; set; }
+
+		[Index(3)]
+		public string NewText { get; set; }
+
+		public override string ToString()
+		{
+			return CADUtil.ReplaceStandardNewLineWithCADNewLine($"{Id},\"{OriginalText}\",\"{NewText}\"");
+		}
+	}
+
+	public class DisplayableObjectInformation : ObjectInformation, INotifyPropertyChanged
+	{
+		private string _displayableNewText;
+		private string _displayableOriginalText;
+
+		[Ignore]
 		public bool IsSelected { get; set; }
-		public string Id { get; }
-		public string OriginalText { get; }
-		public string NewText
+
+		[Ignore]
+		public string DisplayableOriginalText
 		{
 			get
 			{
-				return _newText;
+				return this._displayableOriginalText;
 			}
 			set
 			{
-				if (value != _newText)
+				if (value != this._displayableOriginalText)
 				{
-					_newText = value;
-					NotifyPropertyChanged("NewText");
+					this._displayableOriginalText = value;
+					this.OriginalText = CADUtil.ReplaceStandardNewLineWithCADNewLine(value);
 				}
 			}
 		}
+
+		[Ignore]
+		public string DisplayableNewText
+		{
+			get
+			{
+				return this._displayableNewText;
+			}
+			set
+			{
+				if (value != this._displayableNewText)
+				{
+					this._displayableNewText = value;
+					this.NewText = CADUtil.ReplaceStandardNewLineWithCADNewLine(value);
+					NotifyPropertyChanged("DisplayableNewText");
+				}
+			}
+		}
+
 		public event PropertyChangedEventHandler PropertyChanged;
-
-		public ObjectInformation(string id, string textContent)
-		{
-			this.Id = id;
-			this.OriginalText = textContent;
-			this.NewText = textContent;
-		}
-
-		public ObjectInformation(string id, string originalTextContent, string newTextContent)
-		{
-			this.Id = id;
-			this.OriginalText = originalTextContent;
-			this.NewText = newTextContent;
-		}
 
 		protected void NotifyPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public override string ToString()
+		public DisplayableObjectInformation(Type type, string id, string textContent) : this(type, id, textContent, textContent) { }
+
+		public DisplayableObjectInformation(Type type, string id, string originalTextContent, string newTextContent)
 		{
-			return CADUtil.ReplaceStandardNewLineWithCADNewLine($"{Id},\"{OriginalText}\",\"{NewText}\"");
+			this.Type = type.Name;
+			this.Id = id;
+			this.DisplayableOriginalText = originalTextContent;
+			this.DisplayableNewText = newTextContent;
 		}
+
 	}
 }

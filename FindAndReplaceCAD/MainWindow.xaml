@@ -17,6 +17,32 @@
             <RowDefinition Height="50" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
+        <Grid Margin="10" Grid.Row="0">
+            <Grid.Resources>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="Margin" Value="0,0,10,0" />
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Text="{Binding FilterText}" VerticalContentAlignment="Center" FontSize="14" Name="findText"/>
+            <Button Content="Find" Grid.Column="1" FontSize="14" Name="blah1" Click="btnOpenFile_Click"/>
+        </Grid>
+        <Grid Margin="10" Grid.Row="1">
+            <Grid.Resources>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="Margin" Value="0,0,10,0" />
+            </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" VerticalContentAlignment="Center" FontSize="14" Name="blah2"/>
+            <Button Content="Replace" Grid.Column="1" FontSize="14" Name="blah3" Click="btnOpenFile_Click"/>
+        </Grid>
         <DataGrid ItemsSource="{Binding Test}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="2">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
@@ -25,7 +51,7 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Original Text" Binding="{Binding OriginalText}" Width="1*" IsReadOnly="True" />
+                <DataGridTextColumn Header="Original Text" Binding="{Binding DisplayableOriginalText}" Width="1*" IsReadOnly="True" />
                 <DataGridTemplateColumn Width="75">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -33,7 +59,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="New Text" Binding="{Binding NewText}" Width="1*" />
+                <DataGridTextColumn Header="New Text" Binding="{Binding DisplayableNewText}" Width="1*" />
             </DataGrid.Columns>
         </DataGrid>
         <Grid Margin="10" Grid.Row="3">

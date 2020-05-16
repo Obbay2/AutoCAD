@@ -1,10 +1,5 @@
-﻿using CsvHelper;
-using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,51 +14,30 @@ namespace CADApp
     {
         // TODO: Add background mask
         // TODO: Apply same width to all selected boxes
-        private ObservableCollection<DisplayableObjectInformation> Test { get; set; } = new ObservableCollection<DisplayableObjectInformation>(CADUtil.ReadCADItems());
+        private ObservableCollection<ObjectInformation> Test { get; set; } = new ObservableCollection<ObjectInformation>(CADUtil.ReadCADItems());
+
+        public ICollectionView Texts { get; set; } 
         public string FilterText { get; set; } = "";
+        public bool ShowText { get; set; } = true;
+        public bool ShowMText { get; set; } = true;
+        public bool ShowMLeader { get; set; } = true;
 
         public MainWindow()
         {     
             InitializeComponent();
+            Texts = CollectionViewSource.GetDefaultView(Test);
+            Texts.Filter = FindFilter;
             DataContext = this;
-        }
-
-        public void btnSaveFile_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "CSV File (*.csv)|*.csv";
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                using (var writer = new StreamWriter(saveFileDialog.FileName))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                {
-                    csv.WriteRecords(Test);
-                }
-            }
-        }
-
-        public void btnOpenFile_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "CSV File (*.csv)|*.csv";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                using (var reader = new StreamReader(openFileDialog.FileName))
-                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                {
-                    //Test = new ObservableCollection<DisplayableObjectInformation>(csv.GetRecords<DisplayableObjectInformation>());
-                }
-            }
         }
 
         public void btnExecute_Click(object sender, RoutedEventArgs e)
         {
-            CADUtil.WriteCADItems((IList<ObjectInformation>) Test);
+            CADUtil.WriteCADItems(Test);
         }
 
         public void btnStrip_Click(object sender, RoutedEventArgs e)
         {
-            foreach(DisplayableObjectInformation item in Test.Where(item => item.IsSelected))
+            foreach(ObjectInformation item in Test.Where(item => item.IsSelected))
             {
                 item.NewText = item.OriginalText.Replace("\n", " ");
             }
@@ -76,15 +50,32 @@ namespace CADApp
             CADUtil.MoveViewPort(info.Id);
         }
 
-        //private bool FindFilter(object item)
-        //{
-        //    DisplayableObjectInformation objInfo = item as DisplayableObjectInformation;
+        private bool FindFilter(object item)
+        {
+            bool shouldShow = true;
+            ObjectInformation objInfo = item as ObjectInformation;
 
-        //    if (FilterText.Equals(""))
-        //    {
-        //        return true;
-        //    }
-        //    return objInfo.OriginalText.Contains("");
-        //}
+            if(objInfo.Type == "MText")
+            {
+                shouldShow &= ShowMText;
+            }
+
+            if (objInfo.Type == "MLeader")
+            {
+                shouldShow &= ShowMLeader;
+            }
+
+            if (objInfo.Type == "Text")
+            {
+                shouldShow &= ShowText;
+            }
+
+            return shouldShow &= objInfo.OriginalText.Contains(FilterText);
+        }
+
+        private void findButton_Click(object sender, RoutedEventArgs e)
+        {
+            Texts.Refresh();
+        }
     }
 }

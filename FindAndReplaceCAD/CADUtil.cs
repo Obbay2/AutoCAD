@@ -9,7 +9,7 @@ namespace CADApp
 {
     class CADUtil
     {
-		public static Handle StringToHandle(String strHandle)
+		public static Handle StringToHandle(string strHandle)
 		{
 			Handle handle = new Handle();
 
@@ -41,7 +41,7 @@ namespace CADApp
 			return id;
 		}
 
-		static public void WriteCADItems(IList<ObjectInformation> items)
+		public static void WriteCADItems(IList<ObjectInformation> items)
 		{
 			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
 
@@ -55,8 +55,8 @@ namespace CADApp
 					if(obj is MLeader)
 					{
 						MLeader mLeader = obj as MLeader;
-						MText newMText = (MText)mLeader.MText.Clone();
-						newMText.Contents = objInfo.NewText;
+						MText newMText = mLeader.MText.Clone() as MText;
+						newMText.Contents = ReplaceWithCADEscapeCharacters(objInfo.NewText);
 						mLeader.MText = newMText;
 					}
 
@@ -72,20 +72,20 @@ namespace CADApp
 			Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Editor.UpdateScreen();
 		}
 
-		static public IList<DisplayableObjectInformation> ReadCADItems()
+		public static IList<ObjectInformation> ReadCADItems()
 		{
 			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
 			TransactionManager tm = db.TransactionManager;
 
-			List<DisplayableObjectInformation> textFound = new List<DisplayableObjectInformation>();
+			List<ObjectInformation> textFound = new List<ObjectInformation>();
 
 			using (Transaction myT = tm.StartTransaction())
 			{
 
 				BlockTable bt = (BlockTable)tm.GetObject(db.BlockTableId, OpenMode.ForRead);
 				BlockTableRecord btr = (BlockTableRecord)tm.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead);
-				// iterate through block table to locate mtext objects
-				// this foreach loop will loop through the block table record looking at each object in the drawing.
+				
+				// iterate through block table to locate objects
 				foreach (ObjectId id in btr)
 				{
 					// open each object to read
@@ -94,13 +94,16 @@ namespace CADApp
 					if (obj is MLeader)
 					{
 						MLeader mLeader = obj as MLeader;
-						textFound.Add(new DisplayableObjectInformation(typeof(MLeader), mLeader.Handle.ToString(), mLeader.MText.Contents));
+						Console.WriteLine(mLeader.MText.ContentsRTF);
+						Console.WriteLine(mLeader.MText.Text);
+						textFound.Add(new ObjectInformation(typeof(MLeader), mLeader.Handle.ToString(), mLeader.MText.Text.Replace("\r", "")));
 					}
 
 					if (obj is MText)
 					{
 						MText mText = obj as MText;
-						textFound.Add(new DisplayableObjectInformation(typeof(MText), mText.Handle.ToString(), mText.Contents));
+
+						textFound.Add(new ObjectInformation(typeof(MText), mText.Handle.ToString(), mText.Text.Replace("\r", "")));
 					}
 				}
 				myT.Commit();
@@ -109,38 +112,27 @@ namespace CADApp
 			return textFound;
 		}
 
-		static public string ReplaceCADNewLineWithStandardNewLine(string data)
+		/// <summary>
+		/// Replaces all standard text with the escaped version needed to place back into text contents for AutoCAD
+		/// https://knowledge.autodesk.com/support/autocad/learn-explore/caas/CloudHelp/cloudhelp/2020/ENU/AutoCAD-Core/files/GUID-7D8BB40F-5C4E-4AE5-BD75-9ED7112E5967-htm.html
+		/// </summary>
+		/// <param name="data">Text for a single element</param>
+		/// <returns>String with all characters escaped for AutoCAD</returns>
+		public static string ReplaceWithCADEscapeCharacters(string data)
 		{
-			int backslashCount = 0;
-			for (int i = 0; i < data.Length; i++)
-			{
-				if (data[i] == '\\')
-				{
-					backslashCount++;
-					continue;
-				}
-
-				if (data[i] == 'P' && backslashCount % 2 == 1)
-				{
-					data = data.Remove(i - 1, 2);
-					i--;
-					data = data.Insert(i, "\n");
-					i--;
-					continue;
-				}
-
-				backslashCount = 0;
-			}
-
+			data = data.Replace(@"\", @"\\"); // Must come first
+			data = data.Replace("\n", @"\P");
+			data = data.Replace(@"{", @"\{");
+			data = data.Replace(@"}", @"\}");
 			return data;
 		}
 
-		static public string ReplaceStandardNewLineWithCADNewLine(string data)
-		{
-			return data.Replace("\n", "\\P");
-		}
-
-		static public void MoveViewPort(string id)
+		/// <summary>
+		/// Moves and scales the viewport to center on the CAD element specified by its object ID
+		/// https://through-the-interface.typepad.com/through_the_interface/2012/12/zooming-panning-and-orbiting-the-current-autocad-view-using-net.html
+		/// </summary>
+		/// <param name="id">Id of the AutoCAD element</param>
+		public static void MoveViewPort(string id)
 		{
 			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
 			Editor ed = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Editor;

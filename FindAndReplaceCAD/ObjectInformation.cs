@@ -1,68 +1,30 @@
-﻿using CsvHelper.Configuration.Attributes;
-using System;
+﻿using System;
 using System.ComponentModel;
 
 namespace CADApp
 {
-	public abstract class ObjectInformation
+	public class ObjectInformation : INotifyPropertyChanged
 	{
-		[Index(0)]
-		public string Type { get; set; }
-
-		[Index(1)]
-		public string Id { get; set; }
-
-		[Index(2)]
-		public string OriginalText { get; set; }
-
-		[Index(3)]
-		public string NewText { get; set; }
-
-		public override string ToString()
-		{
-			return CADUtil.ReplaceStandardNewLineWithCADNewLine($"{Id},\"{OriginalText}\",\"{NewText}\"");
-		}
-	}
-
-	public class DisplayableObjectInformation : ObjectInformation, INotifyPropertyChanged
-	{
-		private string _displayableNewText;
-		private string _displayableOriginalText;
-
-		[Ignore]
+		private string _newText;
 		public bool IsSelected { get; set; }
+		public string Type { get; }
 
-		[Ignore]
-		public string DisplayableOriginalText
+		public string Id { get; }
+
+		public string OriginalText { get; }
+
+		public string NewText 
 		{
 			get
 			{
-				return this._displayableOriginalText;
+				return _newText;
 			}
 			set
 			{
-				if (value != this._displayableOriginalText)
+				if (value != _newText)
 				{
-					this._displayableOriginalText = value;
-					this.OriginalText = CADUtil.ReplaceStandardNewLineWithCADNewLine(value);
-				}
-			}
-		}
-
-		[Ignore]
-		public string DisplayableNewText
-		{
-			get
-			{
-				return this._displayableNewText;
-			}
-			set
-			{
-				if (value != this._displayableNewText)
-				{
-					this._displayableNewText = value;
-					this.NewText = CADUtil.ReplaceStandardNewLineWithCADNewLine(value);
-					NotifyPropertyChanged("DisplayableNewText");
+					_newText = value;
+					NotifyPropertyChanged("NewText");
 				}
 			}
 		}
@@ -74,15 +36,19 @@ namespace CADApp
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public DisplayableObjectInformation(Type type, string id, string textContent) : this(type, id, textContent, textContent) { }
+		public ObjectInformation(Type type, string id, string textContent) : this(type, id, textContent, textContent) { }
 
-		public DisplayableObjectInformation(Type type, string id, string originalTextContent, string newTextContent)
+		public ObjectInformation(Type type, string id, string originalTextContent, string newTextContent)
 		{
 			this.Type = type.Name;
 			this.Id = id;
-			this.DisplayableOriginalText = originalTextContent;
-			this.DisplayableNewText = newTextContent;
+			this.OriginalText = originalTextContent;
+			this.NewText = newTextContent;
 		}
 
+		public override string ToString()
+		{
+			return $"{Id},\"{OriginalText}\",\"{NewText}\"";
+		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -21,6 +23,7 @@ namespace CADApp
         public bool ShowText { get; set; } = true;
         public bool ShowMText { get; set; } = true;
         public bool ShowMLeader { get; set; } = true;
+        public bool ShowDimension { get; set; } = true;
 
         public MainWindow()
         {     
@@ -55,19 +58,24 @@ namespace CADApp
             bool shouldShow = true;
             ObjectInformation objInfo = item as ObjectInformation;
 
-            if(objInfo.Type == "MText")
+            if (objInfo.Type == typeof(MText))
             {
                 shouldShow &= ShowMText;
             }
 
-            if (objInfo.Type == "MLeader")
+            if (objInfo.Type == typeof(MLeader))
             {
                 shouldShow &= ShowMLeader;
             }
 
-            if (objInfo.Type == "Text")
+            if (objInfo.Type == typeof(DBText))
             {
                 shouldShow &= ShowText;
+            }
+
+            if (objInfo.Type == typeof(Dimension))
+            {
+                shouldShow &= ShowDimension;
             }
 
             return shouldShow &= objInfo.OriginalText.Contains(FilterText);

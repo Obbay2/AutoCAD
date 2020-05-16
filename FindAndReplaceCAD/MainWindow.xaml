@@ -14,7 +14,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="50" />
-            <RowDefinition Height="100" />
+            <RowDefinition Height="120" />
             <RowDefinition Height="6*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
@@ -46,9 +46,10 @@
         </Grid>
         <StackPanel Margin="10" Grid.Row="2">
             <Label FontWeight="Bold">Text Types</Label>
-            <CheckBox IsChecked="{Binding ShowText}" Name="showText" Checked="findButton_Click" Unchecked="findButton_Click">Show Text</CheckBox>
-            <CheckBox IsChecked="{Binding ShowMText}" Name="showMText" Checked="findButton_Click" Unchecked="findButton_Click">Show MText</CheckBox>
-            <CheckBox IsChecked="{Binding ShowMLeader}" Name="showMLeader" Checked="findButton_Click" Unchecked="findButton_Click">Show MLeader</CheckBox>
+            <CheckBox IsChecked="{Binding ShowText}" Name="showText" Checked="findButton_Click" Unchecked="findButton_Click">Show Single Line Text</CheckBox>
+            <CheckBox IsChecked="{Binding ShowMText}" Name="showMText" Checked="findButton_Click" Unchecked="findButton_Click">Show Multi-Line Text</CheckBox>
+            <CheckBox IsChecked="{Binding ShowMLeader}" Name="showMLeader" Checked="findButton_Click" Unchecked="findButton_Click">Show Multi-Leader Text</CheckBox>
+            <CheckBox IsChecked="{Binding ShowDimension}" Name="showDimension" Checked="findButton_Click" Unchecked="findButton_Click">Show Dimensions</CheckBox>
         </StackPanel>
         <DataGrid ItemsSource="{Binding Texts}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="3">
             <DataGrid.Resources>
@@ -67,7 +68,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="New Text" Binding="{Binding NewText}" Width="1*" />
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="1*" IsReadOnly="True" />
+                <DataGridTextColumn Header="Type" Binding="{Binding FriendlyType}" Width="1*" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
         <Grid Margin="10" Grid.Row="4">

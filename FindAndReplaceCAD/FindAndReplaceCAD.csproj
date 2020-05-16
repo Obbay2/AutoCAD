@@ -59,6 +59,7 @@
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainWindow.xaml">

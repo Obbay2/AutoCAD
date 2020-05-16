@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using System;
 using System.ComponentModel;
 
 namespace CADApp
@@ -7,13 +8,15 @@ namespace CADApp
 	{
 		private string _newText;
 		public bool IsSelected { get; set; }
-		public string Type { get; }
+		public Type Type { get; }
+
+		public string FriendlyType { get; }
 
 		public string Id { get; }
 
 		public string OriginalText { get; }
 
-		public string NewText 
+		public string NewText
 		{
 			get
 			{
@@ -36,12 +39,15 @@ namespace CADApp
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public ObjectInformation(Type type, string id, string textContent) : this(type, id, textContent, textContent) { }
+		public ObjectInformation(DBObject obj) : this(obj, TypeUtil.GetText(obj), TypeUtil.GetText(obj)) { }
 
-		public ObjectInformation(Type type, string id, string originalTextContent, string newTextContent)
+		public ObjectInformation(DBObject obj, string originalTextContent) : this(obj, originalTextContent, originalTextContent) { }
+
+		public ObjectInformation(DBObject obj, string originalTextContent, string newTextContent)
 		{
-			this.Type = type.Name;
-			this.Id = id;
+			this.Type = TypeUtil.GetType(obj);
+			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj);
+			this.Id = obj.Handle.ToString();
 			this.OriginalText = originalTextContent;
 			this.NewText = newTextContent;
 		}

@@ -1,4 +1,5 @@
-﻿using Autodesk.AutoCAD.DatabaseServices;
+﻿using Autodesk.AutoCAD.ApplicationServices.Core;
+using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Runtime;
@@ -43,7 +44,7 @@ namespace CADApp
 
 		public static void WriteCADItems(IList<ObjectInformation> items)
 		{
-			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
+			Database db = Application.DocumentManager.MdiActiveDocument.Database;
 
 			using (Transaction myT = db.TransactionManager.StartTransaction())
 			{
@@ -51,30 +52,17 @@ namespace CADApp
 				{
 					ObjectId id = HandleToObjectId(db, StringToHandle(objInfo.Id));
 					DBObject obj = myT.GetObject(id, OpenMode.ForWrite);
-
-					if(obj is MLeader)
-					{
-						MLeader mLeader = obj as MLeader;
-						MText newMText = mLeader.MText.Clone() as MText;
-						newMText.Contents = ReplaceWithCADEscapeCharacters(objInfo.NewText);
-						mLeader.MText = newMText;
-					}
-
-					if (obj is MText)
-					{
-						MText mText = obj as MText;
-						mText.Contents = objInfo.NewText;
-					}
+					TypeUtil.WriteText(obj, objInfo.NewText);
 				}
 				myT.Commit();
 			}
 
-			Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Editor.UpdateScreen();
+			Application.DocumentManager.MdiActiveDocument.Editor.UpdateScreen();
 		}
 
 		public static IList<ObjectInformation> ReadCADItems()
 		{
-			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
+			Database db = Application.DocumentManager.MdiActiveDocument.Database;
 			TransactionManager tm = db.TransactionManager;
 
 			List<ObjectInformation> textFound = new List<ObjectInformation>();
@@ -90,21 +78,11 @@ namespace CADApp
 				{
 					// open each object to read
 					DBObject obj = myT.GetObject(id, OpenMode.ForRead);
-
-					if (obj is MLeader)
+					if(TypeUtil.IsSupportedType(obj))
 					{
-						MLeader mLeader = obj as MLeader;
-						Console.WriteLine(mLeader.MText.ContentsRTF);
-						Console.WriteLine(mLeader.MText.Text);
-						textFound.Add(new ObjectInformation(typeof(MLeader), mLeader.Handle.ToString(), mLeader.MText.Text.Replace("\r", "")));
+						textFound.Add(new ObjectInformation(obj));
 					}
 
-					if (obj is MText)
-					{
-						MText mText = obj as MText;
-
-						textFound.Add(new ObjectInformation(typeof(MText), mText.Handle.ToString(), mText.Text.Replace("\r", "")));
-					}
 				}
 				myT.Commit();
 			}
@@ -121,7 +99,7 @@ namespace CADApp
 		public static string ReplaceWithCADEscapeCharacters(string data)
 		{
 			data = data.Replace(@"\", @"\\"); // Must come first
-			data = data.Replace("\n", @"\P");
+			data = data.Replace("\r\n", @"\P");
 			data = data.Replace(@"{", @"\{");
 			data = data.Replace(@"}", @"\}");
 			return data;
@@ -134,8 +112,8 @@ namespace CADApp
 		/// <param name="id">Id of the AutoCAD element</param>
 		public static void MoveViewPort(string id)
 		{
-			Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
-			Editor ed = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Editor;
+			Database db = Application.DocumentManager.MdiActiveDocument.Database;
+			Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
 
 			ViewTableRecord view = ed.GetCurrentView();
 			
@@ -158,12 +136,15 @@ namespace CADApp
 					mtext = mText;
 				}
 
-				ed.SetImpliedSelection(new[] { objId });
-				view.CenterPoint = new Point2d(mtext.Location.X, mtext.Location.Y);
-				view.Height = mtext.ActualHeight * 3;
-				view.Width = mtext.ActualWidth * 3;
-				ed.SetCurrentView(view);
-				ed.Regen(); // Update gizmos to be accurate after movement
+				if (mtext != null)
+				{
+					ed.SetImpliedSelection(new[] { objId });
+					view.CenterPoint = new Point2d(mtext.Location.X, mtext.Location.Y);
+					view.Height = mtext.ActualHeight * 3;
+					view.Width = mtext.ActualWidth * 3;
+					ed.SetCurrentView(view);
+					ed.Regen(); // Update gizmos to be accurate after movement
+				}
 				myT.Commit();
 			}
 		}

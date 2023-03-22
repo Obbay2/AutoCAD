@@ -134,7 +134,7 @@ namespace CADApp
 				{
 					MText mText = obj as MText;
 					mtext = mText;
-				}
+                }
 
 				if (mtext != null)
 				{

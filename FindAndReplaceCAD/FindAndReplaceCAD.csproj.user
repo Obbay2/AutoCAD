@@ -5,13 +5,23 @@
     <StartProgram>D:\Program Files\Autodesk\AutoCAD 2018\acad.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartAction>Program</StartAction>
-    <StartProgram>D:\Program Files\Autodesk\AutoCAD 2018\acad.exe</StartProgram>
-    <StartArguments>D:\VS2019\CADProgramSolution\FindAndReplaceCAD\config\Drawing1.dwg /b D:\VS2019\CADProgramSolution\FindAndReplaceCAD\config\script.scr /nologo</StartArguments>
+    <StartAction>Project</StartAction>
+    <StartProgram>
+    </StartProgram>
+    <StartArguments>
+    </StartArguments>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup>
     <ProjectView>ProjectFiles</ProjectView>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <StartProgram>C:\Program Files\Autodesk\AutoCAD 2022\acad.exe</StartProgram>
+    <StartArguments>C:\Users\natha\OneDrive\Projects\AutoCAD\FindAndReplaceCAD\config\Drawing1.dwg /b C:\Users\natha\OneDrive\Projects\AutoCAD\FindAndReplaceCAD\config\script.scr /nologo</StartArguments>
+    <StartAction>Program</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <StartProgram>D:\Program Files\Autodesk\AutoCAD 2018\acad.exe</StartProgram>
   </PropertyGroup>
 </Project>

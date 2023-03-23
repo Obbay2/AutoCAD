@@ -38,7 +38,7 @@ jobs:
           pwd
           dir
           
-      - uses: vimtor/action-zip@1.1
+      - uses: vimtor/action-zip@v1.1
         if: ${{ github.event_name == 'push' }}
         with:
           files: bin\x64\Release\FindAndReplaceCAD.dll

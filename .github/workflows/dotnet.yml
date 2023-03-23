@@ -28,3 +28,10 @@ jobs:
       - name: Build Solution
         run: |
           msbuild.exe CADProgramSolution.sln /p:platform="x64" /p:configuration="Release"
+          
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin\x64\Release\FindAndReplaceCAD.dll
+          
+      

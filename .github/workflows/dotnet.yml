@@ -41,7 +41,4 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          token: ${{secrets.}}
           files: release.zip
-          
-      

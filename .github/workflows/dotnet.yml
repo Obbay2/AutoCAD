@@ -36,13 +36,15 @@ jobs:
       - uses: vimtor/action-zip@v1.1
         if: ${{ github.event_name == 'push' }}
         with:
-          files: ${{github.workspace}}\bin\x64\Release\FindAndReplaceCAD.dll
+          files: $GITHUB_WORKSPACE\bin\x64\Release\FindAndReplaceCAD.dll
           dest: release.zip
           
       - name: Bump version and push tag
         if: ${{ github.event_name == 'push' }}
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ githhub.token }}
           
       - name: Release
         if: ${{ github.event_name == 'push' }}

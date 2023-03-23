@@ -33,15 +33,10 @@ jobs:
         run: |
           msbuild.exe CADProgramSolution.sln /p:platform="x64" /p:configuration="Release"
           
-      - name: Find Dir
-        run: |
-          pwd
-          dir
-          
       - uses: vimtor/action-zip@v1.1
         if: ${{ github.event_name == 'push' }}
         with:
-          files: bin\x64\Release\FindAndReplaceCAD.dll
+          files: ${{github.workspace}}\bin\x64\Release\FindAndReplaceCAD.dll
           dest: release.zip
           
       - name: Bump version and push tag
@@ -53,5 +48,5 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
           files: release.zip

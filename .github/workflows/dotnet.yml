@@ -10,6 +10,10 @@ jobs:
   build:    
     runs-on: windows-latest
     
+    permissions:
+      contents: write
+      discussions: write
+    
     steps:      
       - uses: actions/checkout@v3
       
@@ -29,9 +33,15 @@ jobs:
         run: |
           msbuild.exe CADProgramSolution.sln /p:platform="x64" /p:configuration="Release"
           
+      - uses: vimtor/action-zip@v1
+        with:
+          files: bin\x64\Release\FindAndReplaceCAD.dll
+          dest: release.zip
+          
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: bin\x64\Release\FindAndReplaceCAD.dll
+          token: ${{secrets.}}
+          files: release.zip
           
       

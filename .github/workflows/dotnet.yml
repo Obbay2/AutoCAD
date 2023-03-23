@@ -32,14 +32,15 @@ jobs:
       - name: Build Solution
         run: |
           msbuild.exe CADProgramSolution.sln /p:platform="x64" /p:configuration="Release"
-          
-      - uses: vimtor/action-zip@v1.1
+      
+      - name: Zip DLLs
+        uses: vimtor/action-zip@v1.1
         if: ${{ github.event_name == 'push' }}
         with:
-          files: $GITHUB_WORKSPACE\bin\x64\Release\FindAndReplaceCAD.dll
+          files: FindAndReplaceCAD\bin\x64\Release\FindAndReplaceCAD.dll
           dest: release.zip
           
-      - name: Bump version and push tag
+      - name: Bump Version and Push Tag
         if: ${{ github.event_name == 'push' }}
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1

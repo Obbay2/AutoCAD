@@ -3,20 +3,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CADApp"
         mc:Ignorable="d"
         Title="Find and Replace"
         Height="800"
-        Width="918">
+        Width="918"
+        Name="MainControlWindow">
     <Window.Resources>
         <CollectionViewSource x:Key="ItemCollectionViewSource" CollectionViewType="ListCollectionView"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="50" />
-            <RowDefinition Height="120" />
-            <RowDefinition Height="6*" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Margin="10" Grid.Row="0">
             <Grid.Resources>
@@ -46,12 +50,18 @@
         </Grid>
         <StackPanel Margin="10" Grid.Row="2">
             <Label FontWeight="Bold">Text Types</Label>
-            <CheckBox IsChecked="{Binding ShowText}" Name="showText" Checked="findButton_Click" Unchecked="findButton_Click">Show Single Line Text</CheckBox>
-            <CheckBox IsChecked="{Binding ShowMText}" Name="showMText" Checked="findButton_Click" Unchecked="findButton_Click">Show Multi-Line Text</CheckBox>
-            <CheckBox IsChecked="{Binding ShowMLeader}" Name="showMLeader" Checked="findButton_Click" Unchecked="findButton_Click">Show Multi-Leader Text</CheckBox>
-            <CheckBox IsChecked="{Binding ShowDimension}" Name="showDimension" Checked="findButton_Click" Unchecked="findButton_Click">Show Dimensions</CheckBox>
+            <CheckBox IsChecked="{Binding Path=ShowText, ElementName=MainControlWindow}" Name="showText" Content="Show Text" />
+            <CheckBox IsChecked="{Binding Path=ShowMText, ElementName=MainControlWindow}" Name="showMText" Content="Show Multi-Line Text" />
+            <CheckBox IsChecked="{Binding Path=ShowMLeader, ElementName=MainControlWindow}" Name="showMLeader" Content="Show Multi-Leader Text" />
+            <CheckBox IsChecked="{Binding Path=ShowDimension, ElementName=MainControlWindow}" Name="showDimension" Content="Show Dimensions" />
         </StackPanel>
-        <DataGrid ItemsSource="{Binding Texts}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="3">
+        <Grid Margin="10" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Refresh" Grid.Column="1" FontSize="14" Name="Refresh" Click="refreshButton_Click"/>
+        </Grid>
+        <DataGrid Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" SelectedCellsChanged="DataGrid_SelectedCellsChanged" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="4">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
                     <Setter Property="IsSelected"
@@ -59,8 +69,9 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Original Text" Binding="{Binding OriginalText}" Width="1*" IsReadOnly="True" />
-                <DataGridTemplateColumn Width="75">
+                <DataGridTextColumn Header="Type" Binding="{Binding FriendlyType}" Width="100" IsReadOnly="True" CanUserResize="False" />
+                <DataGridTextColumn Header="Original Text" Binding="{Binding OriginalText}" Width="1*" IsReadOnly="True"  />
+                <DataGridTemplateColumn Width="75" CanUserResize="False" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Content="Jump To" FontSize="12" Name="btnJumpTo" Click="btnJumpTo_Click"/>
@@ -68,10 +79,29 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="New Text" Binding="{Binding NewText}" Width="1*" />
-                <DataGridTextColumn Header="Type" Binding="{Binding FriendlyType}" Width="1*" IsReadOnly="True" />
+                <DataGridTemplateColumn Width="60" CanUserResize="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding NewMask}" IsEnabled="{Binding CanBeMasked}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Grid Margin="10" Grid.Row="4">
+        <Grid Margin="10" Grid.Row="5" Visibility="{Binding Path=HasAnySelection, ElementName=MainControlWindow}">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="2,0,2,0" />
+                </Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Mask Selected" Grid.Column="0" FontSize="12" Name="btnMask" Click="btnMask_Click"/>
+            <Button Content="Unmask Selected" Grid.Column="1" FontSize="12" Name="btnUnmask" Click="btnUnmask_Click"/>
+        </Grid>
+        <Grid Margin="10" Grid.Row="6">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}">
                     <Setter Property="Margin" Value="2,0,2,0" />
@@ -82,7 +112,7 @@
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <Button Content="Strip New Lines" Grid.Column="0" FontSize="12" Name="btnStrip" Click="btnStrip_Click"/>
-            <Button Content="Execute Changes" Grid.Column="2" FontSize="14" Name="btnExecuteChanges" Click="btnExecute_Click"/>
+            <Button Content="Execute Changes" Grid.Column="1" FontSize="12" Name="btnExecuteChanges" Click="btnExecute_Click"/>
         </Grid>
     </Grid>
 </Window>

@@ -2,7 +2,6 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
-using Autodesk.AutoCAD.Runtime;
 using System;
 using System.Collections.Generic;
 
@@ -10,39 +9,7 @@ namespace CADApp
 {
     class CADUtil
     {
-		public static Handle StringToHandle(string strHandle)
-		{
-			Handle handle = new Handle();
-
-			try
-			{
-				Int64 nHandle = Convert.ToInt64(strHandle, 16);
-				handle = new Handle(nHandle);
-			}
-			catch (FormatException)
-			{
-			}
-			return handle;
-		}
-
-		public static ObjectId HandleToObjectId(Database db, Handle h)
-		{
-			ObjectId id = ObjectId.Null;
-			try
-			{
-				id = db.GetObjectId(false, h, 0);
-			}
-			catch (Autodesk.AutoCAD.Runtime.Exception x)
-			{
-				if (x.ErrorStatus != ErrorStatus.UnknownHandle)
-				{
-					throw x;
-				}
-			}
-			return id;
-		}
-
-		public static void WriteCADItems(IList<ObjectInformation> items)
+		public static void WriteCADItems(IEnumerable<ObjectInformation> items)
 		{
 			Database db = Application.DocumentManager.MdiActiveDocument.Database;
 
@@ -50,9 +17,17 @@ namespace CADApp
 			{
 				foreach (ObjectInformation objInfo in items)
 				{
-					ObjectId id = HandleToObjectId(db, StringToHandle(objInfo.Id));
-					DBObject obj = myT.GetObject(id, OpenMode.ForWrite);
-					TypeUtil.WriteText(obj, objInfo.NewText);
+					ObjectId id = objInfo.Id;
+					if (TypeUtil.IsSupportedType(id))
+					{
+                        DBObject obj = myT.GetObject(id, OpenMode.ForWrite);
+                        TypeUtil.WriteText(obj, objInfo.NewText);
+
+						if (TypeUtil.CanBeMasked(obj))
+						{
+							TypeUtil.WriteMask(obj, objInfo.NewMask);
+						}
+                    }					
 				}
 				myT.Commit();
 			}
@@ -76,13 +51,12 @@ namespace CADApp
 				// iterate through block table to locate objects
 				foreach (ObjectId id in btr)
 				{
-					// open each object to read
-					DBObject obj = myT.GetObject(id, OpenMode.ForRead);
-					if(TypeUtil.IsSupportedType(obj))
+					if (TypeUtil.IsSupportedType(id))
 					{
-						textFound.Add(new ObjectInformation(obj));
-					}
-
+                        // open each object to read
+                        DBObject obj = myT.GetObject(id, OpenMode.ForRead);
+                        textFound.Add(new ObjectInformation(obj));
+                    }
 				}
 				myT.Commit();
 			}
@@ -110,7 +84,7 @@ namespace CADApp
 		/// https://through-the-interface.typepad.com/through_the_interface/2012/12/zooming-panning-and-orbiting-the-current-autocad-view-using-net.html
 		/// </summary>
 		/// <param name="id">Id of the AutoCAD element</param>
-		public static void MoveViewPort(string id)
+		public static void MoveViewPort(ObjectId objId)
 		{
 			Database db = Application.DocumentManager.MdiActiveDocument.Database;
 			Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
@@ -119,34 +93,55 @@ namespace CADApp
 			
 			using (Transaction myT = db.TransactionManager.StartTransaction())
 			{
-				ObjectId objId = HandleToObjectId(db, StringToHandle(id));
-				DBObject obj = myT.GetObject(objId, OpenMode.ForRead);
-
-
-				MText mtext = null;
-				if (obj is MLeader)
+				Type t = TypeUtil.GetType(objId);
+                if (t == typeof(MLeader))
 				{
-					MLeader mLeader = obj as MLeader;
-					mtext = mLeader.MText;
-				}
-
-				if (obj is MText)
-				{
-					MText mText = obj as MText;
-					mtext = mText;
+                    MLeader obj = myT.GetObject(objId, OpenMode.ForRead) as MLeader;
+                    moveToText(ed, view, objId, obj.MText);
                 }
 
-				if (mtext != null)
+				if (t == typeof(MText))
 				{
-					ed.SetImpliedSelection(new[] { objId });
-					view.CenterPoint = new Point2d(mtext.Location.X, mtext.Location.Y);
-					view.Height = mtext.ActualHeight * 3;
-					view.Width = mtext.ActualWidth * 3;
-					ed.SetCurrentView(view);
-					ed.Regen(); // Update gizmos to be accurate after movement
-				}
-				myT.Commit();
-			}
-		}
-	}
+                    MText obj = myT.GetObject(objId, OpenMode.ForRead) as MText;
+                    moveToText(ed, view, objId, obj);
+                }
+
+                if (t == typeof(Dimension))
+                {
+                    var obj = myT.GetObject(objId, OpenMode.ForRead) as Dimension;
+					var dimensionBlock = myT.GetObject(obj.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
+					foreach(var subId in dimensionBlock)
+					{
+                        if (TypeUtil.GetType(subId) == typeof(MText))
+                        {
+							var mt = myT.GetObject(subId, OpenMode.ForRead) as MText;
+                            moveToText(ed, view, objId, mt);
+                        }
+                    }
+                }
+
+                if (t == typeof(DBText))
+				{
+                    DBText obj = myT.GetObject(objId, OpenMode.ForRead) as DBText;
+                    moveToText(ed, view, objId, obj.Position, obj.Height, obj.Bounds.Value.MaxPoint.X - obj.Bounds.Value.MinPoint.X);
+                }
+                myT.Commit();
+            }
+        }
+
+		private static void moveToText(Editor ed, ViewTableRecord view, ObjectId objId, Point3d position, double height, double width)
+		{
+            ed.SetImpliedSelection(new[] { objId });
+            view.CenterPoint = new Point2d(position.X, position.Y);
+            view.Height = height * 3;
+            view.Width = width * 3;
+            ed.SetCurrentView(view);
+            ed.Regen(); // Update gizmos to be accurate after movement
+        }
+
+        private static void moveToText(Editor ed, ViewTableRecord view, ObjectId objId, MText mText)
+        {
+			moveToText(ed, view, objId, mText.Location, mText.ActualHeight, mText.ActualWidth);
+        }
+    }
 }

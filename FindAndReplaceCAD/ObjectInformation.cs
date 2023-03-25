@@ -7,12 +7,14 @@ namespace CADApp
 	public class ObjectInformation : INotifyPropertyChanged
 	{
 		private string _newText;
+		private bool _newMask;
+
 		public bool IsSelected { get; set; }
 		public Type Type { get; }
 
 		public string FriendlyType { get; }
 
-		public string Id { get; }
+		public ObjectId Id { get; }
 
 		public string OriginalText { get; }
 
@@ -27,29 +29,43 @@ namespace CADApp
 				if (value != _newText)
 				{
 					_newText = value;
-					NotifyPropertyChanged("NewText");
+					NotifyPropertyChanged(nameof(NewText));
 				}
 			}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public bool NewMask { 
+			get
+			{
+				return _newMask;
+			}
+			set {
+                if (value != _newMask)
+                {
+                    _newMask = value;
+                    NotifyPropertyChanged(nameof(NewMask));
+                }
+            }
+		}
+
+        public bool CanBeMasked { get; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
 		protected void NotifyPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public ObjectInformation(DBObject obj) : this(obj, TypeUtil.GetText(obj), TypeUtil.GetText(obj)) { }
-
-		public ObjectInformation(DBObject obj, string originalTextContent) : this(obj, originalTextContent, originalTextContent) { }
-
-		public ObjectInformation(DBObject obj, string originalTextContent, string newTextContent)
+		public ObjectInformation(DBObject obj)
 		{
-			this.Type = TypeUtil.GetType(obj);
-			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj);
-			this.Id = obj.Handle.ToString();
-			this.OriginalText = originalTextContent;
-			this.NewText = newTextContent;
+			this.Type = TypeUtil.GetType(obj.Id);
+			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj.Id);
+			this.Id = obj.Id;
+			this.OriginalText = TypeUtil.GetText(obj);
+			this.NewText = TypeUtil.GetText(obj);
+			this.NewMask = TypeUtil.IsMasked(obj);
+			this.CanBeMasked = TypeUtil.CanBeMasked(obj);
 		}
 
 		public override string ToString()

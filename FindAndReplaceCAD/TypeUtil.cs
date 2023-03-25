@@ -1,59 +1,53 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CADApp
 {
     class TypeUtil
     {
+		class TypeInformation
+		{
+			public string FriendlyName;
+			public Type Type;
 
-		private static Dictionary<Type, string> types = new Dictionary<Type, string>() {
-			{ typeof(MLeader), "Multi-Leader Text" },
-			{ typeof(MText), "Multi-Line Text" },
-			{ typeof(DBText), "Single Line Text" },
-			{ typeof(Dimension), "Dimension Text" }
+			public TypeInformation(Type type, string friendlyName) 
+			{ 
+				this.Type = type;
+				this.FriendlyName = friendlyName;
+			}
+		}
+
+        private static Dictionary<string, TypeInformation> types = new Dictionary<string, TypeInformation>()
+		{
+			{ "MULTILEADER", new TypeInformation(typeof(MLeader), "Multi-Leader Text") },
+			{ "MTEXT", new TypeInformation(typeof(MText), "Multi-Line Text") },
+			{ "TEXT", new TypeInformation(typeof(DBText), "Text")},
+			{ "DIMENSION", new TypeInformation(typeof(Dimension), "Dimension")}
 		};
 		
-		public static bool IsSupportedType(DBObject obj)
+		public static bool IsSupportedType(ObjectId obj)
 		{
 			if(obj == null)
 			{
 				return false;
 			}
 
-			Type type = GetType(obj);
-
-			if(type == null)
-			{
-				return false;
-			}
-
-			return types.ContainsKey(type);
+			return types.ContainsKey(obj.ObjectClass.DxfName);
 		}
 
-		public static Type GetType(DBObject obj)
+		public static Type GetType(ObjectId obj)
 		{
-			switch (obj)
+			if (types.ContainsKey(obj.ObjectClass.DxfName))
 			{
-				case MLeader _:
-					return typeof(MLeader);
-				case MText _:
-					return typeof(MText);
-				case DBText _:
-					return typeof(DBText);
-				case Dimension _:
-					return typeof(Dimension);
-				default:
-					return null;
+				return types[obj.ObjectClass.DxfName].Type;
 			}
+
+			return null;
 		}
 
 		public static string GetText(DBObject obj)
         {
-
-			AssertSupportedType(obj);
-
 			switch (obj)
 			{
 				case MLeader mLeader:
@@ -69,10 +63,40 @@ namespace CADApp
 			}
 		}
 
+		public static bool IsMasked(DBObject obj)
+        {
+			switch (obj)
+			{
+				case MLeader mLeader:
+					return mLeader.MText.BackgroundFill && mLeader.MText.UseBackgroundColor;
+				case MText mText:
+					return mText.BackgroundFill && mText.UseBackgroundColor;
+				case DBText dbText:
+					return false;
+				case Dimension dimension:
+					return dimension.Dimtfill == 2;
+				default:
+					return false;
+			}
+        }
+
+		public static bool CanBeMasked(DBObject obj)
+		{
+            switch (obj)
+            {
+                case MLeader mLeader:
+                case MText mText:
+                case Dimension dimension:
+					return true;
+                case DBText dbText:
+                default:
+                    return false;
+            }
+
+        }
+
 		public static void WriteText(DBObject obj, string newText)
 		{
-			AssertSupportedType(obj);
-
 			switch (obj)
 			{
 				case MLeader mLeader:
@@ -92,15 +116,33 @@ namespace CADApp
 			}
 		}
 
-		public static string getFriendlyTypeName(DBObject obj)
+		public static void WriteMask(DBObject obj, bool mask)
+		{
+            switch (obj)
+            {
+                case MLeader mLeader:
+                    mLeader.MText.BackgroundFill = mask;
+                    mLeader.MText.UseBackgroundColor = true;
+                    break;
+                case MText mText:
+                    mText.BackgroundFill = mask;
+                    mText.UseBackgroundColor = true;
+                    break;
+                case Dimension dimension:
+					dimension.Dimtfill = mask ? 2 : 0;
+                    break;
+            }
+        }
+
+		public static string getFriendlyTypeName(ObjectId obj)
 		{
 			AssertSupportedType(obj);
-			return types[GetType(obj)];
+			return types[obj.ObjectClass.DxfName].FriendlyName;
 		}
 
-		private static void AssertSupportedType(DBObject obj)
+		private static void AssertSupportedType(ObjectId obj)
 		{
 			if (!IsSupportedType(obj)) throw new ArgumentException($"Unsupported Type: {obj.GetType()}");
 		}
-    }
+	}
 }

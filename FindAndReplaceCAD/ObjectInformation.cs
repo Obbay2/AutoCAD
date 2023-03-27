@@ -1,4 +1,5 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using FindAndReplaceCAD.Util;
 using System;
 using System.ComponentModel;
 
@@ -61,17 +62,21 @@ namespace CADApp
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public ObjectInformation(DBObject obj, string originalText)
+		public ObjectInformation(DBObject obj, Transaction t)
 		{
-			this.Type = TypeUtil.GetType(obj.Id);
-			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj.Id);
+			TypeUtil.TypeInformation typeInfo = TypeUtil.GetTypeInformation(obj.Id);
+			this.Type = typeInfo.Type;
+			this.FriendlyType = typeInfo.FriendlyName;
 			this.Id = obj.Id;
-			this.OriginalText = originalText;
-			this.NewText = originalText;
-			this.NewMask = TypeUtil.IsMasked(obj);
-			this.CanBeMasked = TypeUtil.CanBeMasked(obj);
-			this.CanEditText = TypeUtil.CanTextBeEdited(obj);
-			this.ContentType = TypeUtil.GetContentType(obj);
+
+			ITypeUtil typeUtil = typeInfo.TypeUtil;
+			string text = typeUtil.GetText(obj, t);
+			this.OriginalText = text;
+			this.NewText = text;
+			this.NewMask = typeUtil.GetMask(obj);
+			this.CanBeMasked = typeUtil.CanMaskBeEdited(obj);
+			this.CanEditText = typeUtil.CanTextBeEdited(obj);
+			this.ContentType = typeUtil.GetInternalContentType(obj);
 		}
 
 		public override string ToString()

@@ -22,14 +22,20 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <local:FindAndReplace Grid.Row="0" />
-        <Separator Grid.Row="1" />
-        <StackPanel Margin="10" Grid.Row="2">
+        <local:FindAndReplace Grid.Row="0" Visibility="Collapsed" />
+        <Separator Grid.Row="1" Visibility="Collapsed"/>
+        <StackPanel Margin="10" Grid.Row="2" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Setter Property="Margin" Value="10,2,0,0" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+            </StackPanel.Resources>
             <Label FontWeight="Bold">Text Types</Label>
-            <CheckBox IsChecked="{Binding Path=ShowText, ElementName=MainControlWindow}" Name="showText" Content="Show Text" />
-            <CheckBox IsChecked="{Binding Path=ShowMText, ElementName=MainControlWindow}" Name="showMText" Content="Show Multi-Line Text" />
-            <CheckBox IsChecked="{Binding Path=ShowMLeader, ElementName=MainControlWindow}" Name="showMLeader" Content="Show Multi-Leader Text" />
-            <CheckBox IsChecked="{Binding Path=ShowDimension, ElementName=MainControlWindow}" Name="showDimension" Content="Show Dimensions" />
+            <CheckBox IsChecked="{Binding Path=ShowText, ElementName=MainControlWindow}" Content="Show Text"/>
+            <CheckBox IsChecked="{Binding Path=ShowMText, ElementName=MainControlWindow}" Content="Show Multi-Line Text" />
+            <CheckBox IsChecked="{Binding Path=ShowMLeader, ElementName=MainControlWindow}" Content="Show Multi-Leader Text" />
+            <CheckBox IsChecked="{Binding Path=ShowDimension, ElementName=MainControlWindow}" Content="Show Dimensions" />
         </StackPanel>
         <Grid Margin="10" Grid.Row="3">
             <Grid.ColumnDefinitions>

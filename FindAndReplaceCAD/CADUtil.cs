@@ -2,6 +2,7 @@
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
+using FindAndReplaceCAD.Util;
 using System;
 using System.Collections.Generic;
 
@@ -21,11 +22,18 @@ namespace CADApp
 					if (TypeUtil.IsSupportedType(id))
 					{
                         DBObject obj = myT.GetObject(id, OpenMode.ForWrite);
-                        TypeUtil.WriteText(obj, objInfo.NewText);
 
-						if (TypeUtil.CanBeMasked(obj))
+                        TypeUtil.TypeInformation typeInfo = TypeUtil.GetTypeInformation(obj.Id);
+                        ITypeUtil typeUtil = typeInfo.TypeUtil;
+
+						if (typeUtil.CanTextBeEdited(obj))
 						{
-							TypeUtil.WriteMask(obj, objInfo.NewMask);
+							typeUtil.WriteText(obj, objInfo.NewText, myT);
+						}
+
+						if (typeUtil.CanMaskBeEdited(obj))
+						{
+							typeUtil.WriteMask(obj, objInfo.NewMask);
 						}
                     }					
 				}
@@ -55,8 +63,8 @@ namespace CADApp
 					{
                         // open each object to read
                         DBObject obj = myT.GetObject(id, OpenMode.ForRead);
-						string t = TypeUtil.GetText(obj, myT);
-                        textFound.Add(new ObjectInformation(obj, t));
+						//string t = TypeUtil.GetText(obj, myT);
+                        textFound.Add(new ObjectInformation(obj, myT));
                     }
 				}
 				myT.Commit();
@@ -94,55 +102,14 @@ namespace CADApp
 			
 			using (Transaction myT = db.TransactionManager.StartTransaction())
 			{
-				Type t = TypeUtil.GetType(objId);
-                if (t == typeof(MLeader))
-				{
-                    MLeader obj = myT.GetObject(objId, OpenMode.ForRead) as MLeader;
-                    //moveToText(ed, view, objId, obj.MText);
-                }
+				TypeUtil.TypeInformation t = TypeUtil.GetTypeInformation(objId);
+				ITypeUtil typeUtil = t.TypeUtil;
+				DBObject obj = myT.GetObject(objId, OpenMode.ForRead);
 
-				if (t == typeof(MText))
-				{
-                    MText obj = myT.GetObject(objId, OpenMode.ForRead) as MText;
-                    moveToText(ed, view, objId, obj);
-                }
+				typeUtil.MoveViewPort(ed, view, myT, obj);
 
-                if (t == typeof(Dimension))
-                {
-					var obj = myT.GetObject(objId, OpenMode.ForRead) as Dimension;
-					var dimensionBlock = myT.GetObject(obj.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
-					foreach (var subId in dimensionBlock)
-					{
-						if (TypeUtil.GetType(subId) == typeof(MText))
-						{
-							var mt = myT.GetObject(subId, OpenMode.ForRead) as MText;
-							moveToText(ed, view, objId, mt);
-						}
-					}
-				}
-
-                if (t == typeof(DBText))
-				{
-					DBText obj = myT.GetObject(objId, OpenMode.ForRead) as DBText;
-					moveToText(ed, view, objId, obj.Position, obj.Height, obj.Bounds.Value.MaxPoint.X - obj.Bounds.Value.MinPoint.X);
-				}
                 myT.Commit();
             }
-        }
-
-		private static void moveToText(Editor ed, ViewTableRecord view, ObjectId objId, Point3d position, double height, double width)
-		{
-            ed.SetImpliedSelection(new[] { objId });
-            view.CenterPoint = new Point2d(position.X, position.Y);
-            view.Height = height * 3;
-            view.Width = width * 3;
-            ed.SetCurrentView(view);
-            ed.Regen(); // Update gizmos to be accurate after movement
-        }
-
-        private static void moveToText(Editor ed, ViewTableRecord view, ObjectId objId, MText mText)
-        {
-			moveToText(ed, view, objId, mText.Location, mText.ActualHeight, mText.ActualWidth);
         }
     }
 }

@@ -13,12 +13,10 @@ namespace CADApp
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        // TODO: Add background mask
         // TODO: Apply same width to all selected boxes
         private ObservableCollection<ObjectInformation> Test { get; set; } = new ObservableCollection<ObjectInformation>();
 
-        public ICollectionView Texts { get; set; } 
-        public string FilterText { get; set; } = "";
+        public ICollectionView Texts { get; set; }
 
         private bool _showText = true;
         public bool ShowText { get { return _showText; } set { _showText = value; Texts?.Refresh(); } }
@@ -107,7 +105,11 @@ namespace CADApp
 
         public void refreshButton_Click(object sender, RoutedEventArgs e)
         {
-            refreshData();
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                refreshData();
+            }
         }
 
         private bool FindFilter(object item)
@@ -117,25 +119,25 @@ namespace CADApp
 
             if (objInfo.Type == typeof(MText))
             {
-                shouldShow &= ShowMText;
+                return ShowMText;
             }
 
             if (objInfo.Type == typeof(MLeader))
             {
-                shouldShow &= ShowMLeader;
+                return ShowMLeader;
             }
 
             if (objInfo.Type == typeof(DBText))
             {
-                shouldShow &= ShowText;
+                return ShowText;
             }
 
             if (objInfo.Type == typeof(Dimension))
             {
-                shouldShow &= ShowDimension;
+                return ShowDimension;
             }
 
-            return shouldShow &= objInfo.OriginalText.Contains(FilterText);
+            return shouldShow;
         }
 
         private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)

@@ -117,6 +117,9 @@
   <ItemGroup>
     <Compile Include="CAD.cs" />
     <Compile Include="CADUtil.cs" />
+    <Compile Include="FindAndReplace.xaml.cs">
+      <DependentUpon>FindAndReplace.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ObjectInformation.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -124,6 +127,10 @@
     <Compile Include="TypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="FindAndReplace.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

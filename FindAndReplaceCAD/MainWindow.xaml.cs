@@ -1,5 +1,4 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -137,11 +136,6 @@ namespace CADApp
             }
 
             return shouldShow &= objInfo.OriginalText.Contains(FilterText);
-        }
-
-        private void findButton_Click(object sender, RoutedEventArgs e)
-        {
-            Texts.Refresh();
         }
 
         private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)

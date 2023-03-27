@@ -55,7 +55,8 @@ namespace CADApp
 					{
                         // open each object to read
                         DBObject obj = myT.GetObject(id, OpenMode.ForRead);
-                        textFound.Add(new ObjectInformation(obj));
+						string t = TypeUtil.GetText(obj, myT);
+                        textFound.Add(new ObjectInformation(obj, t));
                     }
 				}
 				myT.Commit();
@@ -97,7 +98,7 @@ namespace CADApp
                 if (t == typeof(MLeader))
 				{
                     MLeader obj = myT.GetObject(objId, OpenMode.ForRead) as MLeader;
-                    moveToText(ed, view, objId, obj.MText);
+                    //moveToText(ed, view, objId, obj.MText);
                 }
 
 				if (t == typeof(MText))
@@ -108,23 +109,23 @@ namespace CADApp
 
                 if (t == typeof(Dimension))
                 {
-                    var obj = myT.GetObject(objId, OpenMode.ForRead) as Dimension;
+					var obj = myT.GetObject(objId, OpenMode.ForRead) as Dimension;
 					var dimensionBlock = myT.GetObject(obj.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
-					foreach(var subId in dimensionBlock)
+					foreach (var subId in dimensionBlock)
 					{
-                        if (TypeUtil.GetType(subId) == typeof(MText))
-                        {
+						if (TypeUtil.GetType(subId) == typeof(MText))
+						{
 							var mt = myT.GetObject(subId, OpenMode.ForRead) as MText;
-                            moveToText(ed, view, objId, mt);
-                        }
-                    }
-                }
+							moveToText(ed, view, objId, mt);
+						}
+					}
+				}
 
                 if (t == typeof(DBText))
 				{
-                    DBText obj = myT.GetObject(objId, OpenMode.ForRead) as DBText;
-                    moveToText(ed, view, objId, obj.Position, obj.Height, obj.Bounds.Value.MaxPoint.X - obj.Bounds.Value.MinPoint.X);
-                }
+					DBText obj = myT.GetObject(objId, OpenMode.ForRead) as DBText;
+					moveToText(ed, view, objId, obj.Position, obj.Height, obj.Bounds.Value.MaxPoint.X - obj.Bounds.Value.MinPoint.X);
+				}
                 myT.Commit();
             }
         }

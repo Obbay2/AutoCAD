@@ -14,6 +14,8 @@ namespace CADApp
 
 		public string FriendlyType { get; }
 
+		public string ContentType { get; }
+
 		public ObjectId Id { get; }
 
 		public string OriginalText { get; }
@@ -33,6 +35,8 @@ namespace CADApp
 				}
 			}
 		}
+
+		public bool CanEditText { get; }
 
 		public bool NewMask { 
 			get
@@ -57,15 +61,17 @@ namespace CADApp
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public ObjectInformation(DBObject obj)
+		public ObjectInformation(DBObject obj, string originalText)
 		{
 			this.Type = TypeUtil.GetType(obj.Id);
 			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj.Id);
 			this.Id = obj.Id;
-			this.OriginalText = TypeUtil.GetText(obj);
-			this.NewText = TypeUtil.GetText(obj);
+			this.OriginalText = originalText;
+			this.NewText = originalText;
 			this.NewMask = TypeUtil.IsMasked(obj);
 			this.CanBeMasked = TypeUtil.CanBeMasked(obj);
+			this.CanEditText = TypeUtil.CanTextBeEdited(obj);
+			this.ContentType = TypeUtil.GetContentType(obj);
 		}
 
 		public override string ToString()

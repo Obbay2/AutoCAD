@@ -11,6 +11,11 @@
         Name="MainControlWindow">
     <Window.Resources>
         <CollectionViewSource x:Key="ItemCollectionViewSource" CollectionViewType="ListCollectionView"/>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Margin" Value="10,0,10,0" />
+            <Setter Property="Padding" Value="10,5,10,5" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -19,6 +24,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -37,62 +43,71 @@
             <CheckBox IsChecked="{Binding Path=ShowMLeader, ElementName=MainControlWindow}" Content="Show Multi-Leader Text" />
             <CheckBox IsChecked="{Binding Path=ShowDimension, ElementName=MainControlWindow}" Content="Show Dimensions" />
         </StackPanel>
-        <Grid Margin="10" Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Refresh" Grid.Column="1" FontSize="14" Name="Refresh" Click="refreshButton_Click"/>
-        </Grid>
-        <DataGrid Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" SelectedCellsChanged="DataGrid_SelectedCellsChanged" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="4">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,10">
+            <Button Content="Refresh" Click="refreshButton_Click"/>
+        </StackPanel>
+        <DataGrid RowDetailsVisibilityMode="Collapsed" Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" CurrentCellChanged="DataGrid_CurrentCellChanged" SelectedCellsChanged="DataGrid_SelectedCellsChanged" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="4">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
                     <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                 </Style>
-                <Style TargetType="CheckBox" x:Key="style">
+                <Style TargetType="CheckBox" x:Key="maskStyle">
                     <Setter Property="IsEnabled" Value="{Binding CanBeMasked}"/>
                     <Setter Property="IsChecked" Value="{Binding NewMask, UpdateSourceTrigger=PropertyChanged}"/>
                 </Style>
+                <Style TargetType="DataGridCell" x:Key="newMaskCellStyle">
+                    <Setter Property="Background" Value="{Binding HasMaskChanged}" />
+                </Style>
             </DataGrid.Resources>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="20,10">
+                        <TextBlock Text="Here are the details for the selected mountain:"/>
+                        <TextBlock Text="{Binding FriendlyType}"/>
+                        <TextBlock FontSize="13" Text="{Binding ContentType}"/>
+                        <TextBlock FontSize="13" Text="{Binding OriginalText}" TextWrapping="WrapWithOverflow" />
+                        <TextBlock FontSize="13" Text="{Binding Id}" />
+                    </StackPanel>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Type" Binding="{Binding FriendlyType}" Width="100" IsReadOnly="True" CanUserResize="False" />
-                <DataGridTextColumn Header="Type" Binding="{Binding ContentType}" Width="100" IsReadOnly="True" CanUserResize="False" />
+                <DataGridTemplateColumn Width="100" CanUserResize="False" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Details" FontSize="12" Click="btnDetails_Click" CommandParameter="{Binding Path=ID}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Type" Binding="{Binding FriendlyType}" Width="115" IsReadOnly="True" CanUserResize="False" />
+                <DataGridTextColumn Header="Type" Binding="{Binding ContentType}" Width="50" IsReadOnly="True" CanUserResize="False" />
                 <DataGridTextColumn Header="Original Text" Binding="{Binding OriginalText}" Width="1*" IsReadOnly="True"  />
                 <DataGridTemplateColumn Width="75" CanUserResize="False" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="Jump To" FontSize="12" Name="btnJumpTo" Click="btnJumpTo_Click"/>
+                            <Button Content="Go To" FontSize="12" Name="btnJumpTo" Click="btnJumpTo_Click"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="New Text" Binding="{Binding NewText}" Width="1*" IsReadOnly="{Binding CanEditText}" />
-                <DataGridCheckBoxColumn Header="Masked" Width="60" CanUserResize="False" ElementStyle="{StaticResource style}" EditingElementStyle="{StaticResource style}" />
+                <DataGridTemplateColumn Width="1*" Header="New Text">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding NewText}" Background="{Binding HasTextChanged}" IsEnabled="{Binding CanEditText}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="Masked" Width="60" CanUserResize="False" ElementStyle="{StaticResource maskStyle}" EditingElementStyle="{StaticResource maskStyle}" CellStyle="{StaticResource newMaskCellStyle}" />
             </DataGrid.Columns>
         </DataGrid>
-        <Grid Margin="10" Grid.Row="5" Visibility="{Binding Path=HasAnySelection, ElementName=MainControlWindow}">
-            <Grid.Resources>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Margin" Value="2,0,2,0" />
-                </Style>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Mask Selected" Grid.Column="0" FontSize="12" Name="btnMask" Click="btnMask_Click"/>
-            <Button Content="Unmask Selected" Grid.Column="1" FontSize="12" Name="btnUnmask" Click="btnUnmask_Click"/>
-        </Grid>
-        <Grid Margin="10" Grid.Row="6">
-            <Grid.Resources>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Margin" Value="2,0,2,0" />
-                </Style>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="Strip New Lines" Grid.Column="0" FontSize="12" Name="btnStrip" Click="btnStrip_Click"/>
-            <Button Content="Execute Changes" Grid.Column="1" FontSize="12" Name="btnExecuteChanges" Click="btnExecute_Click"/>
-        </Grid>
+        <UniformGrid Grid.Row="5" Visibility="{Binding Path=HasAnySelection, ElementName=MainControlWindow}" Rows="1" Columns="2" Margin="0,5,0,5">
+            <Button Content="Mask Selected" Name="btnMask" Click="btnMask_Click"/>
+            <Button Content="Unmask Selected" Click="btnUnmask_Click"/>
+        </UniformGrid>
+        <StackPanel Grid.Row="6" Orientation="Horizontal" Margin="0,5,0,5">
+            <Button Content="Strip New Lines" Click="btnStrip_Click"/>
+        </StackPanel>
+        <DockPanel Grid.Row="7" HorizontalAlignment="Stretch" Margin="0,5,0,5">
+            <Label Width="300" Content="{Binding Path=EditedAttributes, ElementName=MainControlWindow}" Margin="0,0,10,0" />
+            <Button Content="Execute Changes" Click="btnExecute_Click"/>
+        </DockPanel>
     </Grid>
 </Window>

@@ -3,6 +3,9 @@ using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.GraphicsSystem;
 using CADApp;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Documents;
 
 namespace FindAndReplaceCAD.Util
 {
@@ -70,7 +73,6 @@ namespace FindAndReplaceCAD.Util
             }
 
             throw new InvalidOperationException();
-
         }
 
         public override bool CanTextBeEdited(DBObject obj)
@@ -105,35 +107,17 @@ namespace FindAndReplaceCAD.Util
 
         private string GetMLeaderBlockText(MLeader obj, Transaction myT)
         {
-            var blockID = obj.BlockContentId;
-
-            BlockTableRecord btr2 = myT.GetObject(blockID, OpenMode.ForRead) as BlockTableRecord;
-
-            //List<string> attributeKeys = new List<string>();
-            //if (btr2.HasAttributeDefinitions)
-            //{
-            //    foreach (ObjectId id2 in btr2)
-            //    {
-            //        if (id2.ObjectClass.DxfName == "ATTDEF")
-            //        {
-            //            AttributeDefinition attDef = myT.GetObject(id2, OpenMode.ForRead) as AttributeDefinition;
-            //            attributeKeys.Add(attDef.Tag);
-            //        }
-            //    }
-            //}
-
-            var ids = btr2.GetBlockReferenceIds(true, true);
-            foreach (ObjectId j in ids)
+            BlockTableRecord btr2 = myT.GetObject(obj.BlockContentId, OpenMode.ForRead) as BlockTableRecord;
+            if (btr2.HasAttributeDefinitions)
             {
-                var br = (BlockReference)myT.GetObject(j, OpenMode.ForRead);
-                foreach (ObjectId i in br.AttributeCollection)
+                foreach (ObjectId id2 in btr2)
                 {
-                    var attRef = (AttributeReference)myT.GetObject(i, OpenMode.ForRead);
-                    //attRef.
-                    //if (attributeKeys.Contains(attRef.Tag))
-                    //{
-                    return attRef.TextString;
-
+                    if (id2.ObjectClass.DxfName == "ATTDEF")
+                    {
+                        AttributeDefinition attDef = myT.GetObject(id2, OpenMode.ForRead) as AttributeDefinition;
+                        AttributeReference attRef = obj.GetBlockAttribute(attDef.Id);
+                        return attRef.TextString;
+                    }
                 }
             }
 

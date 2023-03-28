@@ -1,6 +1,8 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.EditorInput;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -47,6 +49,23 @@ namespace CADApp
             }
         }
 
+        private string _editedAttributes = "Edited 0 attributes on 0 records";
+        public string EditedAttributes
+        {
+            get
+            {
+                return _editedAttributes;
+            }
+            set
+            {
+                if (value != _editedAttributes)
+                {
+                    _editedAttributes = value;
+                    NotifyPropertyChanged(nameof(EditedAttributes));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyPropertyChanged(string propertyName)
         {
@@ -81,7 +100,7 @@ namespace CADApp
 
         public void btnExecute_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Execute Confirmation", MessageBoxButton.YesNo);
             
             if (messageBoxResult == MessageBoxResult.Yes) {
                 CADUtil.WriteCADItems(Test.Where(item => item.IsSelected));
@@ -105,7 +124,7 @@ namespace CADApp
 
         public void refreshButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure?", "Delete Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure? All edits made so far will be discarded.", "Refresh Confirmation", MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 refreshData();
@@ -142,7 +161,7 @@ namespace CADApp
 
         private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
-            HasAnySelection = Test.Count(item => item.IsSelected) > 1 ? 
+            HasAnySelection = DataGrid.SelectedItems.Count > 1 ? 
                 System.Windows.Visibility.Visible.ToString() : System.Windows.Visibility.Collapsed.ToString();
         }
 
@@ -153,6 +172,19 @@ namespace CADApp
             {
                 Test.Add(item);
             }
+        }
+
+        private void DataGrid_CurrentCellChanged(object sender, System.EventArgs e)
+        {
+            int recordsChanged = Test.Count(item => item.AttributesChanged() > 0);
+            int attributesChanged = Test.Sum(item => item.AttributesChanged());
+            EditedAttributes = $"Edited {attributesChanged} attributes on {recordsChanged} records";
+        }
+
+        private void btnDetails_Click(object sender, RoutedEventArgs e)
+        {
+            DataGridRow dgr = DataGridRow.GetRowContainingElement((Button)sender);
+            DataGrid.SetDetailsVisibilityForItem(dgr, System.Windows.Visibility.Visible);
         }
     }
 }

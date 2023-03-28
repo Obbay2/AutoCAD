@@ -2,6 +2,7 @@
 using FindAndReplaceCAD.Util;
 using System;
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace CADApp
 {
@@ -33,11 +34,14 @@ namespace CADApp
 				{
 					_newText = value;
 					NotifyPropertyChanged(nameof(NewText));
-				}
+                    NotifyPropertyChanged(nameof(HasTextChanged));
+                }
 			}
 		}
 
 		public bool CanEditText { get; }
+
+		public bool OriginalMask { get; }
 
 		public bool NewMask { 
 			get
@@ -49,11 +53,32 @@ namespace CADApp
                 {
                     _newMask = value;
                     NotifyPropertyChanged(nameof(NewMask));
+                    NotifyPropertyChanged(nameof(HasMaskChanged));
                 }
             }
 		}
 
         public bool CanBeMasked { get; }
+
+		public SolidColorBrush HasTextChanged {
+            get
+			{
+				return OriginalText != NewText ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+			}
+        }
+
+        public SolidColorBrush HasMaskChanged
+        {
+            get
+            {
+                return OriginalMask != NewMask ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+		public int AttributesChanged()
+		{
+			return (OriginalText != NewText ? 1 : 0) + (OriginalMask != NewMask ? 1 : 0);
+		}
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -73,7 +98,11 @@ namespace CADApp
 			string text = typeUtil.GetText(obj, t);
 			this.OriginalText = text;
 			this.NewText = text;
-			this.NewMask = typeUtil.GetMask(obj);
+
+			bool mask = typeUtil.GetMask(obj);
+			this.OriginalMask = mask;
+			this.NewMask = mask;
+
 			this.CanBeMasked = typeUtil.CanMaskBeEdited(obj);
 			this.CanEditText = typeUtil.CanTextBeEdited(obj);
 			this.ContentType = typeUtil.GetInternalContentType(obj);

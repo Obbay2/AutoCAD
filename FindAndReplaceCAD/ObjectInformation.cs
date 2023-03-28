@@ -34,6 +34,7 @@ namespace CADApp
 				{
 					_newText = value;
 					NotifyPropertyChanged(nameof(NewText));
+					NotifyEditableAttributeChanged(nameof(NewText));
                     NotifyPropertyChanged(nameof(HasTextChanged));
                 }
 			}
@@ -53,6 +54,7 @@ namespace CADApp
                 {
                     _newMask = value;
                     NotifyPropertyChanged(nameof(NewMask));
+                    NotifyEditableAttributeChanged(nameof(NewMask));
                     NotifyPropertyChanged(nameof(HasMaskChanged));
                 }
             }
@@ -79,6 +81,13 @@ namespace CADApp
 		{
 			return (OriginalText != NewText ? 1 : 0) + (OriginalMask != NewMask ? 1 : 0);
 		}
+
+        public event PropertyChangedEventHandler EditableAttributeChanged;
+
+        protected void NotifyEditableAttributeChanged(string propertyName)
+        {
+            EditableAttributeChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

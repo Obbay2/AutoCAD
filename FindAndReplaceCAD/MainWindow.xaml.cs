@@ -1,8 +1,6 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
-using Autodesk.AutoCAD.EditorInput;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,23 +29,6 @@ namespace CADApp
 
         private bool _showDimension = true;
         public bool ShowDimension { get { return _showDimension; } set { _showDimension = value; Texts?.Refresh(); } }
-
-        private string _visibility = System.Windows.Visibility.Collapsed.ToString();
-        public string HasAnySelection
-        {
-            get
-            {
-                return _visibility;
-            }
-            set
-            {
-                if (value != _visibility)
-                {
-                    _visibility = value;
-                    NotifyPropertyChanged(nameof(HasAnySelection));
-                }
-            }
-        }
 
         private string _editedAttributes = "Edited 0 attributes on 0 records";
         public string EditedAttributes
@@ -159,22 +140,17 @@ namespace CADApp
             return shouldShow;
         }
 
-        private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
-        {
-            HasAnySelection = DataGrid.SelectedItems.Count > 1 ? 
-                System.Windows.Visibility.Visible.ToString() : System.Windows.Visibility.Collapsed.ToString();
-        }
-
         private void refreshData()
         {
             Test.Clear();
             foreach (var item in CADUtil.ReadCADItems())
             {
+                item.EditableAttributeChanged += DataGrid_AttributesChanged;
                 Test.Add(item);
             }
         }
 
-        private void DataGrid_CurrentCellChanged(object sender, System.EventArgs e)
+        private void DataGrid_AttributesChanged(object sender, PropertyChangedEventArgs e)
         {
             int recordsChanged = Test.Count(item => item.AttributesChanged() > 0);
             int attributesChanged = Test.Sum(item => item.AttributesChanged());
@@ -183,8 +159,8 @@ namespace CADApp
 
         private void btnDetails_Click(object sender, RoutedEventArgs e)
         {
-            DataGridRow dgr = DataGridRow.GetRowContainingElement((Button)sender);
-            DataGrid.SetDetailsVisibilityForItem(dgr, System.Windows.Visibility.Visible);
+            //DataGridRow dgr = DataGridRow.GetRowContainingElement((Button)sender);
+            //DataGrid.SetDetailsVisibilityForItem(dgr, System.Windows.Visibility.Visible);
         }
     }
 }

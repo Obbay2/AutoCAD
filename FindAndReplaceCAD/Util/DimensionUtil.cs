@@ -51,13 +51,14 @@ namespace FindAndReplaceCAD.Util
         public override void MoveViewPort(Editor ed, ViewTableRecord view, Transaction t, DBObject obj)
         {
             Dimension dimension = Cast<Dimension>(obj);
-            var dimensionBlock = t.GetObject(dimension.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
-            foreach (var subId in dimensionBlock)
+            BlockTableRecord dimensionBlock = t.GetObject(dimension.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
+            foreach (ObjectId subId in dimensionBlock)
             {
                 if (TypeUtil.GetTypeInformation(subId).Type == typeof(MText))
                 {
-                    var mText = t.GetObject(subId, OpenMode.ForRead) as MText;
+                    MText mText = t.GetObject(subId, OpenMode.ForRead) as MText;
                     base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
+                    mText.Dispose();
                 }
             }
         }

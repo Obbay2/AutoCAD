@@ -1,9 +1,7 @@
 ﻿using Autodesk.AutoCAD.ApplicationServices.Core;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
-using Autodesk.AutoCAD.Geometry;
 using FindAndReplaceCAD.Util;
-using System;
 using System.Collections.Generic;
 
 namespace CADApp
@@ -35,6 +33,7 @@ namespace CADApp
 						{
 							typeUtil.WriteMask(obj, objInfo.NewMask);
 						}
+						obj.Dispose();
                     }					
 				}
 				myT.Commit();
@@ -63,8 +62,8 @@ namespace CADApp
 					{
                         // open each object to read
                         DBObject obj = myT.GetObject(id, OpenMode.ForRead);
-						//string t = TypeUtil.GetText(obj, myT);
-                        textFound.Add(new ObjectInformation(obj, myT));
+						textFound.Add(new ObjectInformation(obj, myT));
+						obj.Dispose();
                     }
 				}
 				myT.Commit();
@@ -105,8 +104,8 @@ namespace CADApp
 				TypeUtil.TypeInformation t = TypeUtil.GetTypeInformation(objId);
 				ITypeUtil typeUtil = t.TypeUtil;
 				DBObject obj = myT.GetObject(objId, OpenMode.ForRead);
-
 				typeUtil.MoveViewPort(ed, view, myT, obj);
+				obj.Dispose();
 
                 myT.Commit();
             }

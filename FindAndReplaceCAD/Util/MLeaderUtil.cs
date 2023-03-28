@@ -1,11 +1,7 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
-using Autodesk.AutoCAD.GraphicsSystem;
 using CADApp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Documents;
 
 namespace FindAndReplaceCAD.Util
 {
@@ -20,7 +16,10 @@ namespace FindAndReplaceCAD.Util
             }
             else if (mLeader.ContentType == ContentType.MTextContent)
             {
-                return mLeader.MText.Text;
+                MText mText = mLeader.MText;
+                string output = mText.Contents;
+                mText.Dispose();
+                return output;
             }
 
             throw new InvalidOperationException();
@@ -38,6 +37,7 @@ namespace FindAndReplaceCAD.Util
                 MText newMText = mLeader.MText.Clone() as MText;
                 newMText.Contents = CADUtil.ReplaceWithCADEscapeCharacters(newText);
                 mLeader.MText = newMText;
+                newMText.Dispose();
             }
 
             throw new InvalidOperationException();
@@ -52,7 +52,10 @@ namespace FindAndReplaceCAD.Util
             }
             else if (mLeader.ContentType == ContentType.MTextContent)
             {
-                return mLeader.MText.BackgroundFill && mLeader.MText.UseBackgroundColor;
+                MText mText = mLeader.MText;
+                bool output = mText.BackgroundFill && mText.UseBackgroundColor;
+                mText.Dispose();
+                return output;
             }
 
             throw new InvalidOperationException();
@@ -70,6 +73,7 @@ namespace FindAndReplaceCAD.Util
                 newMText.BackgroundFill = newMask;
                 newMText.UseBackgroundColor = true;
                 mLeader.MText = newMText;
+                newMText.Dispose();
             }
 
             throw new InvalidOperationException();
@@ -116,7 +120,9 @@ namespace FindAndReplaceCAD.Util
                     {
                         AttributeDefinition attDef = myT.GetObject(id2, OpenMode.ForRead) as AttributeDefinition;
                         AttributeReference attRef = obj.GetBlockAttribute(attDef.Id);
-                        return attRef.TextString;
+                        string output = attRef.TextString;
+                        attRef.Dispose();
+                        return output;
                     }
                 }
             }
@@ -152,6 +158,7 @@ namespace FindAndReplaceCAD.Util
             {
                 MText mText = mLeader.MText;
                 base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
+                mText.Dispose();
             }
 
             

@@ -1,106 +1,57 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.GraphicsInterface;
+using FindAndReplaceCAD.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CADApp
 {
     class TypeUtil
     {
+		public class TypeInformation
+		{
+			public string FriendlyName;
+			public Type Type;
+			public ITypeUtil TypeUtil;
 
-		private static Dictionary<Type, string> types = new Dictionary<Type, string>() {
-			{ typeof(MLeader), "Multi-Leader Text" },
-			{ typeof(MText), "Multi-Line Text" },
-			{ typeof(DBText), "Single Line Text" },
-			{ typeof(Dimension), "Dimension Text" }
+			public TypeInformation(Type type, string friendlyName, ITypeUtil typeUtil) 
+			{ 
+				this.Type = type;
+				this.FriendlyName = friendlyName;
+				this.TypeUtil = typeUtil;
+			}
+		}
+
+		private static Dictionary<string, TypeInformation> types = new Dictionary<string, TypeInformation>()
+		{
+			{ "MULTILEADER", new TypeInformation(typeof(MLeader), "Multi-Leader Text", new MLeaderUtil()) },
+			{ "MTEXT", new TypeInformation(typeof(MText), "Multi-Line Text", new MTextUtil()) },
+			{ "TEXT", new TypeInformation(typeof(DBText), "Text", new DBTextUtil())},
+			{ "DIMENSION", new TypeInformation(typeof(Dimension), "Dimension", new DimensionUtil())}
 		};
+
+		public static readonly string MTEXT = "MText";
+		public static readonly string DBTEXT = "Text";
+		public static readonly string BLOCK = "Block";
 		
-		public static bool IsSupportedType(DBObject obj)
+		public static bool IsSupportedType(ObjectId obj)
 		{
 			if(obj == null)
 			{
 				return false;
 			}
 
-			Type type = GetType(obj);
-
-			if(type == null)
-			{
-				return false;
-			}
-
-			return types.ContainsKey(type);
+			return types.ContainsKey(obj.ObjectClass.DxfName);
 		}
 
-		public static Type GetType(DBObject obj)
-		{
-			switch (obj)
-			{
-				case MLeader _:
-					return typeof(MLeader);
-				case MText _:
-					return typeof(MText);
-				case DBText _:
-					return typeof(DBText);
-				case Dimension _:
-					return typeof(Dimension);
-				default:
-					return null;
-			}
-		}
-
-		public static string GetText(DBObject obj)
+        public static TypeInformation GetTypeInformation(ObjectId obj)
         {
+            if (types.ContainsKey(obj.ObjectClass.DxfName))
+            {
+                return types[obj.ObjectClass.DxfName];
+            }
 
-			AssertSupportedType(obj);
-
-			switch (obj)
-			{
-				case MLeader mLeader:
-					return mLeader.MText.Text;
-				case MText mText:
-					return mText.Text;
-				case DBText dbText:
-					return dbText.TextString;
-				case Dimension dimension:
-					return dimension.DimensionText;
-				default:
-					return "";
-			}
-		}
-
-		public static void WriteText(DBObject obj, string newText)
-		{
-			AssertSupportedType(obj);
-
-			switch (obj)
-			{
-				case MLeader mLeader:
-					MText newMText = mLeader.MText.Clone() as MText;
-					newMText.Contents = CADUtil.ReplaceWithCADEscapeCharacters(newText);
-					mLeader.MText = newMText;
-					break;
-				case MText mText:
-					mText.Contents = CADUtil.ReplaceWithCADEscapeCharacters(newText);
-					break;
-				case DBText dbText:
-					dbText.TextString = newText;
-					break;
-				case Dimension dimension:
-					dimension.DimensionText = newText;
-					break;
-			}
-		}
-
-		public static string getFriendlyTypeName(DBObject obj)
-		{
-			AssertSupportedType(obj);
-			return types[GetType(obj)];
-		}
-
-		private static void AssertSupportedType(DBObject obj)
-		{
-			if (!IsSupportedType(obj)) throw new ArgumentException($"Unsupported Type: {obj.GetType()}");
-		}
-    }
+            return null;
+        }
+	}
 }

@@ -1,18 +1,24 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using FindAndReplaceCAD.Util;
 using System;
 using System.ComponentModel;
+using System.Windows.Media;
 
 namespace CADApp
 {
 	public class ObjectInformation : INotifyPropertyChanged
 	{
 		private string _newText;
+		private bool _newMask;
+
 		public bool IsSelected { get; set; }
 		public Type Type { get; }
 
 		public string FriendlyType { get; }
 
-		public string Id { get; }
+		public string ContentType { get; }
+
+		public ObjectId Id { get; }
 
 		public string OriginalText { get; }
 
@@ -27,29 +33,79 @@ namespace CADApp
 				if (value != _newText)
 				{
 					_newText = value;
-					NotifyPropertyChanged("NewText");
-				}
+					NotifyPropertyChanged(nameof(NewText));
+                    NotifyPropertyChanged(nameof(HasTextChanged));
+                }
 			}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public bool CanEditText { get; }
+
+		public bool OriginalMask { get; }
+
+		public bool NewMask { 
+			get
+			{
+				return _newMask;
+			}
+			set {
+                if (value != _newMask)
+                {
+                    _newMask = value;
+                    NotifyPropertyChanged(nameof(NewMask));
+                    NotifyPropertyChanged(nameof(HasMaskChanged));
+                }
+            }
+		}
+
+        public bool CanBeMasked { get; }
+
+		public SolidColorBrush HasTextChanged {
+            get
+			{
+				return OriginalText != NewText ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+			}
+        }
+
+        public SolidColorBrush HasMaskChanged
+        {
+            get
+            {
+                return OriginalMask != NewMask ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+		public int AttributesChanged()
+		{
+			return (OriginalText != NewText ? 1 : 0) + (OriginalMask != NewMask ? 1 : 0);
+		}
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
 		protected void NotifyPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public ObjectInformation(DBObject obj) : this(obj, TypeUtil.GetText(obj), TypeUtil.GetText(obj)) { }
-
-		public ObjectInformation(DBObject obj, string originalTextContent) : this(obj, originalTextContent, originalTextContent) { }
-
-		public ObjectInformation(DBObject obj, string originalTextContent, string newTextContent)
+		public ObjectInformation(DBObject obj, Transaction t)
 		{
-			this.Type = TypeUtil.GetType(obj);
-			this.FriendlyType = TypeUtil.getFriendlyTypeName(obj);
-			this.Id = obj.Handle.ToString();
-			this.OriginalText = originalTextContent;
-			this.NewText = newTextContent;
+			TypeUtil.TypeInformation typeInfo = TypeUtil.GetTypeInformation(obj.Id);
+			this.Type = typeInfo.Type;
+			this.FriendlyType = typeInfo.FriendlyName;
+			this.Id = obj.Id;
+
+			ITypeUtil typeUtil = typeInfo.TypeUtil;
+			string text = typeUtil.GetText(obj, t);
+			this.OriginalText = text;
+			this.NewText = text;
+
+			bool mask = typeUtil.GetMask(obj);
+			this.OriginalMask = mask;
+			this.NewMask = mask;
+
+			this.CanBeMasked = typeUtil.CanMaskBeEdited(obj);
+			this.CanEditText = typeUtil.CanTextBeEdited(obj);
+			this.ContentType = typeUtil.GetInternalContentType(obj);
 		}
 
 		public override string ToString()

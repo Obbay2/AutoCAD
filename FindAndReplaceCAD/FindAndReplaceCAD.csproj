@@ -70,6 +70,9 @@
   <ItemGroup>
     <Compile Include="CAD.cs" />
     <Compile Include="CADUtil.cs" />
+    <Compile Include="UserControl\DetailsDialog.xaml.cs">
+      <DependentUpon>DetailsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControl\FindAndReplace.xaml.cs">
       <DependentUpon>FindAndReplace.xaml</DependentUpon>
     </Compile>
@@ -85,6 +88,10 @@
     <Compile Include="Util\ITypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="UserControl\DetailsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControl\FindAndReplace.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

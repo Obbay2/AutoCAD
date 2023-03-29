@@ -1,10 +1,13 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Navigation;
 
 namespace CADApp
 {
@@ -44,6 +47,15 @@ namespace CADApp
                     _editedAttributes = value;
                     NotifyPropertyChanged(nameof(EditedAttributes));
                 }
+            }
+        }
+
+        public string CharacterEncodingURL
+        {
+            get
+            {
+                string currentYear = DateTime.Now.Year.ToString();
+                return $"https://help.autodesk.com/view/ACD/{currentYear}/ENU/?guid=GUID-7D8BB40F-5C4E-4AE5-BD75-9ED7112E5967";
             }
         }
 
@@ -92,7 +104,7 @@ namespace CADApp
         {
             foreach(ObjectInformation item in Test.Where(item => item.IsSelected))
             {
-                item.NewText = item.OriginalText.Replace("\n", " ");
+                item.NewText = item.OriginalText.Replace(@"\P", " ");
             }
         }
 
@@ -105,10 +117,19 @@ namespace CADApp
 
         public void refreshButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure? All edits made so far will be discarded.", "Refresh Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure? All edits made so far will be discarded. Latest changes will retrieved from drawing file.", "Refresh Confirmation", MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 refreshData();
+            }
+        }
+
+        public void revertButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult messageBoxResult = MessageBox.Show("Are you sure? All edits in selected rows will be discarded.", "Revert Confirmation", MessageBoxButton.YesNo);
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                revertSelectedData();
             }
         }
 
@@ -140,6 +161,15 @@ namespace CADApp
             return shouldShow;
         }
 
+        private void revertSelectedData()
+        {
+            foreach (var item in Test.Where(item => item.IsSelected))
+            {
+                item.NewText = item.OriginalText;
+                item.NewMask = item.OriginalMask;
+            }
+        }
+
         private void refreshData()
         {
             Test.Clear();
@@ -159,8 +189,14 @@ namespace CADApp
 
         private void btnDetails_Click(object sender, RoutedEventArgs e)
         {
-            //DataGridRow dgr = DataGridRow.GetRowContainingElement((Button)sender);
-            //DataGrid.SetDetailsVisibilityForItem(dgr, System.Windows.Visibility.Visible);
+            ObjectInformation objInfo = (ObjectInformation) ((Button)sender).DataContext;
+            new DetailsDialog(objInfo).ShowDialog();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
     }
 }

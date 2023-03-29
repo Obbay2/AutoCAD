@@ -62,18 +62,33 @@ namespace CADApp
 
         public bool CanBeMasked { get; }
 
-		public SolidColorBrush HasTextChanged {
+		public bool HasTextChanged { 
+			get
+			{
+				return OriginalText != NewText;
+			}
+		}
+
+		public bool HasMaskChanged
+		{
+			get
+			{
+				return OriginalMask != NewMask;
+			}
+		}
+
+		public SolidColorBrush TextBackgroundColor {
             get
 			{
-				return OriginalText != NewText ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+				return HasTextChanged ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
 			}
         }
 
-        public SolidColorBrush HasMaskChanged
+        public SolidColorBrush MaskBackgroundColor
         {
             get
             {
-                return OriginalMask != NewMask ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+                return HasMaskChanged ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
             }
         }
 

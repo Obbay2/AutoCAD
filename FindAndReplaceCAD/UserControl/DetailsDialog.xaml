@@ -1,0 +1,120 @@
+﻿<Window x:Class="CADApp.DetailsDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CADApp"
+             mc:Ignorable="d" 
+             Height="Auto"
+             Width="600"
+             MinWidth="300"
+             Title="Details Pane">
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Margin" Value="10,5,10,5" />
+        </Style>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Margin" Value="10,5,10,5" />
+        </Style>
+    </Window.Resources>
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="ID" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=Id}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Type" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=Type}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Friendly Type" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=FriendlyType}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Content Type" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=ContentType}" Grid.Column="1" />
+        </Grid>
+        <Separator />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Original Text" Grid.Column="0" />
+            <TextBox Text="{Binding Path=OriginalText, Mode=OneTime}" Grid.Column="1" TextWrapping="Wrap" IsReadOnly="True" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="New Text" Grid.Column="0" />
+            <TextBox Text="{Binding Path=NewText, Mode=OneTime}" Grid.Column="1" TextWrapping="Wrap" IsReadOnly="True" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Can Edit Text?" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=CanEditText}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Has Attribute Changed?" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=HasTextChanged}" Grid.Column="1" />
+        </Grid>
+        <Separator />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Original Mask" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=OriginalMask}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="New Mask" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=NewMask}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Can Edit Mask?" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=CanBeMasked}" Grid.Column="1" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Has Attribute Changed?" Grid.Column="0" />
+            <TextBlock Text="{Binding Path=HasMaskChanged}" Grid.Column="1" />
+        </Grid>
+    </StackPanel>
+</Window>

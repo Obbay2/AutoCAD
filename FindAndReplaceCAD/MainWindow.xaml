@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Find and Replace"
         Height="800"
-        Width="918"
+        Width="1000"
         Name="MainControlWindow">
     <Window.Resources>
         <CollectionViewSource x:Key="ItemCollectionViewSource" CollectionViewType="ListCollectionView"/>
@@ -41,6 +41,7 @@
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,10">
             <Button Content="Refresh" Click="refreshButton_Click"/>
+            <Button Content="Revert Selected" Click="revertButton_Click"/>
         </StackPanel>
         <TabControl Grid.Row="2" Margin="10,10,10,10">
             <TabItem Header="Masking">
@@ -61,6 +62,16 @@
             <TabItem Header="Dimension Override">
                 
             </TabItem>
+            <TabItem Header="Help">
+                <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
+                    <TextBlock Margin="0,0,10,0" Text="AutoCAD Character Encoding Reference:" />
+                    <TextBlock>           
+                        <Hyperlink NavigateUri="{Binding Path=CharacterEncodingURL, ElementName=MainControlWindow}" RequestNavigate="Hyperlink_RequestNavigate">
+                            Click Here
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
         </TabControl>
         <DataGrid Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="3">
             <DataGrid.Resources>
@@ -72,7 +83,7 @@
                     <Setter Property="IsChecked" Value="{Binding NewMask, UpdateSourceTrigger=PropertyChanged}"/>
                 </Style>
                 <Style TargetType="DataGridCell" x:Key="newMaskCellStyle">
-                    <Setter Property="Background" Value="{Binding HasMaskChanged}" />
+                    <Setter Property="Background" Value="{Binding MaskBackgroundColor}" />
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
@@ -96,7 +107,7 @@
                 <DataGridTemplateColumn Width="1*" Header="New Text">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding NewText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding HasTextChanged}" IsEnabled="{Binding CanEditText}"/>
+                            <TextBox Text="{Binding NewText, UpdateSourceTrigger=PropertyChanged}" Background="{Binding TextBackgroundColor}" IsEnabled="{Binding CanEditText}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

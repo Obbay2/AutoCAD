@@ -35,12 +35,10 @@ namespace FindAndReplaceCAD.Util
             else if (mLeader.ContentType == ContentType.MTextContent)
             {
                 MText newMText = mLeader.MText.Clone() as MText;
-                newMText.Contents = CADUtil.ReplaceWithCADEscapeCharacters(newText);
+                newMText.Contents = newText;
                 mLeader.MText = newMText;
                 newMText.Dispose();
             }
-
-            throw new InvalidOperationException();
         }
 
         public override bool GetMask(DBObject obj)
@@ -75,8 +73,6 @@ namespace FindAndReplaceCAD.Util
                 mLeader.MText = newMText;
                 newMText.Dispose();
             }
-
-            throw new InvalidOperationException();
         }
 
         public override bool CanTextBeEdited(DBObject obj)
@@ -160,8 +156,6 @@ namespace FindAndReplaceCAD.Util
                 base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
                 mText.Dispose();
             }
-
-            
         }
     }
 }

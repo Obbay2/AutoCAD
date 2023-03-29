@@ -15,7 +15,7 @@ namespace FindAndReplaceCAD.Util
         public override void WriteText(DBObject obj, string newText, Transaction t)
         {
             MText mText = Cast<MText>(obj);
-            mText.Contents = CADUtil.ReplaceWithCADEscapeCharacters(newText);
+            mText.Contents = newText;
         }
 
         public override bool GetMask(DBObject obj)

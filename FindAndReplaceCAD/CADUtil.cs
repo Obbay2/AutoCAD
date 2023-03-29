@@ -24,12 +24,12 @@ namespace CADApp
                         TypeUtil.TypeInformation typeInfo = TypeUtil.GetTypeInformation(obj.Id);
                         ITypeUtil typeUtil = typeInfo.TypeUtil;
 
-						if (typeUtil.CanTextBeEdited(obj))
+						if (typeUtil.CanTextBeEdited(obj) && objInfo.HasTextChanged)
 						{
 							typeUtil.WriteText(obj, objInfo.NewText, myT);
 						}
 
-						if (typeUtil.CanMaskBeEdited(obj))
+						if (typeUtil.CanMaskBeEdited(obj) && objInfo.HasMaskChanged)
 						{
 							typeUtil.WriteMask(obj, objInfo.NewMask);
 						}
@@ -78,14 +78,14 @@ namespace CADApp
 		/// </summary>
 		/// <param name="data">Text for a single element</param>
 		/// <returns>String with all characters escaped for AutoCAD</returns>
-		public static string ReplaceWithCADEscapeCharacters(string data)
-		{
-			data = data.Replace(@"\", @"\\"); // Must come first
-			data = data.Replace("\r\n", @"\P");
-			data = data.Replace(@"{", @"\{");
-			data = data.Replace(@"}", @"\}");
-			return data;
-		}
+		//public static string ReplaceWithCADEscapeCharacters(string data)
+		//{
+		//	data = data.Replace(@"\", @"\\"); // Must come first
+		//	data = data.Replace("\r\n", @"\P");
+		//	data = data.Replace(@"{", @"\{");
+		//	data = data.Replace(@"}", @"\}");
+		//	return data;
+		//}
 
 		/// <summary>
 		/// Moves and scales the viewport to center on the CAD element specified by its object ID

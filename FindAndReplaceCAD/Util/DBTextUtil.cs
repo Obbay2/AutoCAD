@@ -16,12 +16,12 @@ namespace FindAndReplaceCAD.Util
         public override void WriteText(DBObject obj, string newText, Transaction t)
         {
             DBText dbText = Cast<DBText>(obj);
-            dbText.TextString = CADUtil.ReplaceWithCADEscapeCharacters(newText);
+            dbText.TextString = newText;
         }
 
         public override bool GetMask(DBObject obj)
         {
-            throw new InvalidOperationException();
+            return false;
         }
 
         public override void WriteMask(DBObject obj, bool newMask)

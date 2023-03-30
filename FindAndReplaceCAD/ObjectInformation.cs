@@ -36,6 +36,7 @@ namespace CADApp
 					NotifyPropertyChanged(nameof(NewText));
 					NotifyEditableAttributeChanged(nameof(NewText));
                     NotifyPropertyChanged(nameof(HasTextChanged));
+                    NotifyPropertyChanged(nameof(TextBackgroundColor));
                 }
 			}
 		}
@@ -56,6 +57,7 @@ namespace CADApp
                     NotifyPropertyChanged(nameof(NewMask));
                     NotifyEditableAttributeChanged(nameof(NewMask));
                     NotifyPropertyChanged(nameof(HasMaskChanged));
+                    NotifyPropertyChanged(nameof(MaskBackgroundColor));
                 }
             }
 		}
@@ -80,7 +82,18 @@ namespace CADApp
 		public SolidColorBrush TextBackgroundColor {
             get
 			{
-				return HasTextChanged ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.Transparent);
+				if (FoundInSearch)
+				{
+					return new SolidColorBrush(Colors.Aqua);
+                } 
+				else if (HasTextChanged)
+				{
+                    return new SolidColorBrush(Colors.Yellow);
+                } 
+				else
+				{
+                    return new SolidColorBrush(Colors.Transparent);
+                }
 			}
         }
 
@@ -92,7 +105,23 @@ namespace CADApp
             }
         }
 
-		public int AttributesChanged()
+		private bool _foundInSearch;
+		public bool FoundInSearch
+		{
+			get
+			{
+				return _foundInSearch;
+			} 
+			set 
+			{ 
+				if (_foundInSearch != value) { 
+					_foundInSearch = value;
+					NotifyPropertyChanged(nameof(TextBackgroundColor));
+				}
+			}
+		}
+
+        public int AttributesChanged()
 		{
 			return (OriginalText != NewText ? 1 : 0) + (OriginalMask != NewMask ? 1 : 0);
 		}

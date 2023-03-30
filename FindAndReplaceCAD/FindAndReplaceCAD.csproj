@@ -62,6 +62,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xaml" />
@@ -73,6 +74,7 @@
     <Compile Include="UserControl\DetailsDialog.xaml.cs">
       <DependentUpon>DetailsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControl\EventArgs.cs" />
     <Compile Include="UserControl\FindAndReplace.xaml.cs">
       <DependentUpon>FindAndReplace.xaml</DependentUpon>
     </Compile>

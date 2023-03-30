@@ -2,8 +2,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -56,6 +58,14 @@ namespace CADApp
             {
                 string currentYear = DateTime.Now.Year.ToString();
                 return $"https://help.autodesk.com/view/ACD/{currentYear}/ENU/?guid=GUID-7D8BB40F-5C4E-4AE5-BD75-9ED7112E5967";
+            }
+        }
+
+        public string RegularExpressionURL
+        {
+            get
+            {
+                return $"https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference";
             }
         }
 
@@ -197,6 +207,83 @@ namespace CADApp
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
+        }
+
+        private void FindAndReplace_FindClicked(object sender, EventArgs.FindClickedArgs e)
+        {
+            string findText = e.FindText;
+            if (findText.Length == 0)
+            {
+                Test.ToList().ForEach(item => item.FoundInSearch = false);
+                return;
+            }
+
+            Test.ToList().ForEach(item => item.FoundInSearch = false);
+
+            if (e.IsRegex)
+            {
+                Regex r = null;
+                try
+                {
+                    if (e.IsCaseInsensitive)
+                    {
+                        r = new Regex(findText, RegexOptions.IgnoreCase);
+                    }
+                    else
+                    {
+                        r = new Regex(findText);
+                    }
+                    
+                }
+                catch (ArgumentException)
+                {
+                    return;
+                }
+
+                Test.Where(item => r.IsMatch(item.NewText)).ToList().ForEach(item => item.FoundInSearch = true);
+            } 
+            else
+            {
+                
+                Test.Where(item => item.NewText.IndexOf(findText, e.IsCaseInsensitive ? StringComparison.CurrentCultureIgnoreCase : StringComparison.CurrentCulture) > -1)
+                    .ToList().ForEach(item => item.FoundInSearch = true);
+            }
+        }
+
+        private void FindAndReplace_ReplaceClicked(object sender, EventArgs.ReplaceClickedArgs e)
+        {
+            string findText = e.FindText;
+            string replaceText = e.ReplaceText;
+            Test.ToList().ForEach(item => item.FoundInSearch = false);
+
+            if (e.IsRegex)
+            {
+                Regex r = null;
+                try
+                {
+                    if (e.IsCaseInsensitive)
+                    {
+                        r = new Regex(findText, RegexOptions.IgnoreCase);
+                    }
+                    else
+                    {
+                        r = new Regex(findText);
+                    }
+
+                }
+                catch (ArgumentException)
+                {
+                    return;
+                }
+
+                Test.Where(item => r.IsMatch(item.NewText)).ToList().ForEach(item => item.NewText = r.Replace(item.NewText, replaceText));
+            }
+            else
+            {
+                Test.Where(item => item.NewText.Contains(findText)).ToList().ForEach(item => item.NewText = replaceText);
+            }
+
+            FindAndReplace_FindClicked(null, new EventArgs.FindClickedArgs() { FindText = findText, IsRegex = e.IsRegex, IsCaseInsensitive = e.IsCaseInsensitive });
         }
     }
 }

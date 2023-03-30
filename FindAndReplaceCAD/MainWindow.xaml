@@ -52,7 +52,7 @@
             </TabItem>
             <TabItem Header="Edit Text">
                 <StackPanel>
-                    <local:FindAndReplace />
+                    <local:FindAndReplace FindChanged="FindAndReplace_FindClicked" ReplaceClicked="FindAndReplace_ReplaceClicked" />
                     <Separator Height="2"/>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                         <Button Content="Strip New Lines" Click="btnStrip_Click"/>
@@ -63,13 +63,23 @@
                 
             </TabItem>
             <TabItem Header="Help">
-                <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
-                    <TextBlock Margin="0,0,10,0" Text="AutoCAD Character Encoding Reference:" />
-                    <TextBlock>           
+                <StackPanel Margin="10,10,10,10">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Margin="0,0,10,0" Text="AutoCAD Character Encoding Reference:" />
+                        <TextBlock>           
                         <Hyperlink NavigateUri="{Binding Path=CharacterEncodingURL, ElementName=MainControlWindow}" RequestNavigate="Hyperlink_RequestNavigate">
                             Click Here
                         </Hyperlink>
-                    </TextBlock>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Margin="0,0,10,0" Text="Regular Expression Reference:" />
+                        <TextBlock>           
+                        <Hyperlink NavigateUri="{Binding Path=RegularExpressionURL, ElementName=MainControlWindow}" RequestNavigate="Hyperlink_RequestNavigate">
+                            Click Here
+                        </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
         </TabControl>

@@ -6,13 +6,20 @@
              xmlns:local="clr-namespace:CADApp"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Margin" Value="10,0,10,0" />
+            <Setter Property="Padding" Value="10,5,10,5" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Margin="10" Grid.Row="0">
+        <Grid Margin="10" Grid.Row="0" Height="35">
             <Grid.Resources>
                 <Style TargetType="{x:Type TextBox}">
                     <Setter Property="Margin" Value="0,0,10,0" />
@@ -20,12 +27,10 @@
             </Grid.Resources>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" VerticalContentAlignment="Center" FontSize="14" />
-            <Button Content="Find" Grid.Column="1" FontSize="14" Click="FindButton_Click"/>
+            <TextBox Grid.Column="0" VerticalContentAlignment="Center" Text="{Binding FindString, UpdateSourceTrigger=PropertyChanged, Delay=200}" />
         </Grid>
-        <Grid Margin="10" Grid.Row="1">
+        <Grid Margin="10" Grid.Row="1" Height="35">
             <Grid.Resources>
                 <Style TargetType="{x:Type TextBox}">
                     <Setter Property="Margin" Value="0,0,10,0" />
@@ -33,16 +38,14 @@
             </Grid.Resources>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="125"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" VerticalContentAlignment="Center" FontSize="14" />
-            <Button Content="Replace" Grid.Column="1" FontSize="14" Click="ReplaceButton_Click"/>
+            <TextBox Grid.Column="0" VerticalContentAlignment="Center" Text="{Binding ReplaceString, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Content="Replace" Grid.Column="1" Click="ReplaceButton_Click"/>
         </Grid>
-        <Grid Margin="10" Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <CheckBox Grid.Column="0" Content="Regex"/>
-        </Grid>
+        <StackPanel Orientation="Horizontal" Margin="10" Grid.Row="2">
+            <CheckBox Content="Regular Expression" IsChecked="{Binding IsRegex}"/>
+            <CheckBox Margin="10,0,0,0" Content="Case Insensitive" IsChecked="{Binding IsCaseInsensitive}"/>
+        </StackPanel>
     </Grid>
 </UserControl>

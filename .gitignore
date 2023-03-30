@@ -3,3 +3,5 @@
 **/obj
 **/packages
 **/*.bak
+**/*.dwl
+**/*.dwl2

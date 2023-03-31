@@ -46,10 +46,9 @@ namespace FindAndReplaceCAD.Util
             return TypeUtil.MTEXT;
         }
 
-        public override void MoveViewPort(Editor ed, ViewTableRecord view, Transaction t, DBObject obj)
+        public override void MoveViewPort(Editor ed, Transaction t, Entity obj)
         {
-            MText mText = Cast<MText>(obj);
-            base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
+            base.MoveViewPort(ed, obj);
         }
     }
 }

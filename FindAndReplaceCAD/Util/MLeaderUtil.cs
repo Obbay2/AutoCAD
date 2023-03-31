@@ -142,20 +142,9 @@ namespace FindAndReplaceCAD.Util
             return "";
         }
 
-        public override void MoveViewPort(Editor ed, ViewTableRecord view, Transaction t, DBObject obj)
+        public override void MoveViewPort(Editor ed, Transaction t, Entity obj)
         {
-            MLeader mLeader = Cast<MLeader>(obj);
-
-            if (mLeader.ContentType == ContentType.BlockContent)
-            {
-                throw new InvalidOperationException();
-            }
-            else if (mLeader.ContentType == ContentType.MTextContent)
-            {
-                MText mText = mLeader.MText;
-                base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
-                mText.Dispose();
-            }
+            base.MoveViewPort(ed, obj);
         }
     }
 }

@@ -44,10 +44,9 @@ namespace FindAndReplaceCAD.Util
             return TypeUtil.DBTEXT;
         }
 
-        public override void MoveViewPort(Editor ed, ViewTableRecord view, Transaction t, DBObject obj)
+        public override void MoveViewPort(Editor ed, Transaction t, Entity obj)
         {
-            DBText dbText = Cast<DBText>(obj);
-            base.MoveViewPort(ed, view, obj, dbText.Position, dbText.Height, dbText.Bounds.Value.MaxPoint.X - dbText.Bounds.Value.MinPoint.X);
+            base.MoveViewPort(ed, obj);
         }
     }
 }

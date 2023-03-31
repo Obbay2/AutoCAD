@@ -51,8 +51,7 @@ namespace CADApp
 
 			using (Transaction myT = tm.StartTransaction())
 			{
-
-				BlockTable bt = (BlockTable)tm.GetObject(db.BlockTableId, OpenMode.ForRead);
+                BlockTable bt = (BlockTable)tm.GetObject(db.BlockTableId, OpenMode.ForRead);
 				BlockTableRecord btr = (BlockTableRecord)tm.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForRead);
 				
 				// iterate through block table to locate objects
@@ -73,21 +72,6 @@ namespace CADApp
 		}
 
 		/// <summary>
-		/// Replaces all standard text with the escaped version needed to place back into text contents for AutoCAD
-		/// https://knowledge.autodesk.com/support/autocad/learn-explore/caas/CloudHelp/cloudhelp/2020/ENU/AutoCAD-Core/files/GUID-7D8BB40F-5C4E-4AE5-BD75-9ED7112E5967-htm.html
-		/// </summary>
-		/// <param name="data">Text for a single element</param>
-		/// <returns>String with all characters escaped for AutoCAD</returns>
-		//public static string ReplaceWithCADEscapeCharacters(string data)
-		//{
-		//	data = data.Replace(@"\", @"\\"); // Must come first
-		//	data = data.Replace("\r\n", @"\P");
-		//	data = data.Replace(@"{", @"\{");
-		//	data = data.Replace(@"}", @"\}");
-		//	return data;
-		//}
-
-		/// <summary>
 		/// Moves and scales the viewport to center on the CAD element specified by its object ID
 		/// https://through-the-interface.typepad.com/through_the_interface/2012/12/zooming-panning-and-orbiting-the-current-autocad-view-using-net.html
 		/// </summary>
@@ -103,8 +87,8 @@ namespace CADApp
 			{
 				TypeUtil.TypeInformation t = TypeUtil.GetTypeInformation(objId);
 				ITypeUtil typeUtil = t.TypeUtil;
-				DBObject obj = myT.GetObject(objId, OpenMode.ForRead);
-				typeUtil.MoveViewPort(ed, view, myT, obj);
+				Entity obj = (Entity) myT.GetObject(objId, OpenMode.ForRead);
+				typeUtil.MoveViewPort(ed, myT, obj);
 				obj.Dispose();
 
                 myT.Commit();

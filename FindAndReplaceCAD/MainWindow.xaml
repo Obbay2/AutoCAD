@@ -22,8 +22,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel Margin="10" Grid.Row="0" Orientation="Horizontal">
@@ -33,7 +33,7 @@
                     <Setter Property="VerticalAlignment" Value="Center" />
                 </Style>
             </StackPanel.Resources>
-            <Label FontWeight="Bold">Text Types</Label>
+            <Label FontWeight="Bold" Content="Text Types"/>
             <CheckBox IsChecked="{Binding Path=ShowText, ElementName=MainControlWindow}" Content="Show Text"/>
             <CheckBox IsChecked="{Binding Path=ShowMText, ElementName=MainControlWindow}" Content="Show Multi-Line Text" />
             <CheckBox IsChecked="{Binding Path=ShowMLeader, ElementName=MainControlWindow}" Content="Show Multi-Leader Text" />
@@ -83,7 +83,8 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-        <DataGrid Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="3">
+        <Label Grid.Row="3" FontWeight="Bold" Content="All items below are active in model space" />
+        <DataGrid Name="DataGrid" ItemsSource="{Binding Path=Texts, ElementName=MainControlWindow}" SelectionMode="Extended" CanUserResizeRows="False"  AutoGenerateColumns="False" Grid.Row="4">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
                     <Setter Property="IsSelected" Value="{Binding IsSelected}" />

@@ -1,9 +1,6 @@
 ﻿using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using CADApp;
-using System;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace FindAndReplaceCAD.Util
 {
@@ -48,7 +45,7 @@ namespace FindAndReplaceCAD.Util
             return TypeUtil.MTEXT;
         }
 
-        public override void MoveViewPort(Editor ed, ViewTableRecord view, Transaction t, DBObject obj)
+        public override void MoveViewPort(Editor ed, Transaction t, Entity obj)
         {
             Dimension dimension = Cast<Dimension>(obj);
             BlockTableRecord dimensionBlock = t.GetObject(dimension.DimBlockId, OpenMode.ForRead) as BlockTableRecord;
@@ -57,7 +54,7 @@ namespace FindAndReplaceCAD.Util
                 if (TypeUtil.GetTypeInformation(subId).Type == typeof(MText))
                 {
                     MText mText = t.GetObject(subId, OpenMode.ForRead) as MText;
-                    base.MoveViewPort(ed, view, obj, mText.Location, mText.ActualHeight, mText.ActualWidth);
+                    base.MoveViewPort(ed, obj);
                     mText.Dispose();
                 }
             }

@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <StartProgram>C:\Program Files\Autodesk\AutoCAD 2022\acad.exe</StartProgram>
-    <StartArguments>C:\Users\natha\OneDrive\Projects\AutoCAD\FindAndReplaceCAD\config\Drawing1.dwg /b C:\Users\natha\OneDrive\Projects\AutoCAD\FindAndReplaceCAD\config\script.scr /nologo</StartArguments>
+    <StartArguments>"C:\Users\natha\OneDrive\Desktop\CI-001 - Standard\CI-001.dwg" /b C:\Users\natha\OneDrive\Projects\AutoCAD\FindAndReplaceCAD\config\script.scr /nologo</StartArguments>
     <StartAction>Program</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
